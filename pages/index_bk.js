@@ -1,60 +1,47 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const VotingPage = () => {
-  const [isVotingActive, setIsVotingActive] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(10); // Countdown timer
-  const [hasVoted, setHasVoted] = useState(false);
+  const [voteComplete, setVoteComplete] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(10); // Лічильник на 10 секунд
+  const [voteResult, setVoteResult] = useState(null);
 
-  // Fetch voting status when the page loads
   useEffect(() => {
-    async function fetchVotingStatus() {
-      const response = await fetch('/api/votingstatus');
-      const data = await response.json();
-      setIsVotingActive(data.is_active === 1); // Set voting status
+    if (timeLeft > 0) {
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (!voteComplete) {
+      completeVoting();
     }
-    fetchVotingStatus();
-  }, []);
+  }, [timeLeft]);
 
-  // Timer logic
-  useEffect(() => {
-    if (isVotingActive && timeLeft > 0) {
-      const interval = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-
-      return () => clearInterval(interval); // Clear interval on unmount
-    } else if (timeLeft === 0 || hasVoted) {
-      setIsVotingActive(false);
-    }
-  }, [isVotingActive, timeLeft, hasVoted]);
-
-  // Function to handle vote submission
-  async function handleVote(vote) {
+  const handleVote = async (vote) => {
     try {
-      await fetch('/api/vote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vote }),
-      });
-      setHasVoted(true);
+      await axios.post('/api/vote', { vote });
+      completeVoting();
     } catch (error) {
-      console.error('Failed to submit vote', error);
+      console.error('Error submitting vote:', error);
     }
-  }
+  };
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const response = await fetch('/api/votingstatus');
-      const data = await response.json();
-      setIsVotingActive(data.is_active === 1);
-    }, 1000); // Poll every 1 second
-  
-    return () => clearInterval(interval);
-  }, []);
-  
+  const completeVoting = () => {
+    setVoteComplete(true);
+    setTimeLeft(0);
+    getResults();
+  };
+
+  const getResults = async () => {
+    try {
+      const { data } = await axios.get('/api/getresult');
+      setVoteResult(data);
+    } catch (error) {
+      console.error('Error fetching results:', error);
+    }
+  };
+
   return (
     <div className="container">
-      {!hasVoted && isVotingActive ? (
+      {!voteComplete ? (
         <>
           <div className="buttons">
             <button className="vote-button green" onClick={() => handleVote('yes')}>ЗА</button>
@@ -68,6 +55,9 @@ const VotingPage = () => {
       ) : (
         <div className="results">
           <h2>ГОЛОСУВАННЯ ЗАВЕРШЕНО</h2>
+          <div>ЗА: {voteResult?.yes || 0}</div>
+          <div>УТРИМУЮСЬ: {voteResult?.abstain || 0}</div>
+          <div>ПРОТИ: {voteResult?.no || 0}</div>
         </div>
       )}
       <style jsx>{`

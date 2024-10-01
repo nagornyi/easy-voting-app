@@ -1,4 +1,4 @@
-import { openDB } from './db';
+import { openDB } from '../../src/db';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {

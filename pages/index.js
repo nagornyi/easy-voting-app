@@ -1,60 +1,83 @@
 import { useEffect, useState } from 'react';
 
 const VotingPage = () => {
+  const [timeRemaining, setTimeRemaining] = useState(null);
   const [isVotingActive, setIsVotingActive] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(10); // Countdown timer
   const [hasVoted, setHasVoted] = useState(false);
 
-  // Fetch voting status when the page loads
+  // Poll the voting status every second if the buttons are not displayed
   useEffect(() => {
-    async function fetchVotingStatus() {
-      const response = await fetch('/api/votingstatus');
-      const data = await response.json();
-      setIsVotingActive(data.is_active === 1); // Set voting status
+    let pollVotingStatus;
+    let localTimer;
+
+    if (!isVotingActive || hasVoted) {
+      pollVotingStatus = setInterval(async () => {
+        try {
+          const response = await fetch('/api/votingstatus');
+          if (!response.ok) {
+            throw new Error('Failed to fetch voting status');
+          }
+          const data = await response.json();
+          if (data.is_active === 1) { // If voting is active
+            setIsVotingActive(true); // Set voting active status to true
+            if (timeRemaining <= 0) {
+              setHasVoted(false); // Reset hasVoted if the previous voting has ended
+            }
+          }
+          if (data.time_remaining > 0) {
+            setTimeRemaining(data.time_remaining); // Set time remaining only once
+          }
+        } catch (error) {
+          console.error('Error fetching voting status:', error);
+        }
+      }, 1000); // Poll every second
     }
-    fetchVotingStatus();
-  }, []);
 
-  // Timer logic
-  useEffect(() => {
-    if (isVotingActive && timeLeft > 0) {
-      const interval = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-
-      return () => clearInterval(interval); // Clear interval on unmount
-    } else if (timeLeft === 0 || hasVoted) {
-      setIsVotingActive(false);
+    if (timeRemaining <= 0) {
+      // Hide buttons after the voting has ended
+      setHasVoted(true);
     }
-  }, [isVotingActive, timeLeft, hasVoted]);
 
-  // Function to handle vote submission
-  async function handleVote(vote) {
+    // Start a local timer to countdown if voting is active
+    if (isVotingActive) {
+      localTimer = setInterval(() => {
+        setTimeRemaining(prev => (prev > 0 ? prev - 1 : 0));
+      }, 1000); // Local countdown every second
+    }
+
+    return () => {
+      clearInterval(pollVotingStatus);
+      clearInterval(localTimer);
+    };
+  }, [isVotingActive, hasVoted, timeRemaining]);
+
+  // Handle vote submission and stop displaying buttons
+  const handleVote = async (vote) => {
     try {
-      await fetch('/api/vote', {
+      const response = await fetch('/api/vote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ vote }),
       });
+      if (!response.ok) {
+        throw new Error('Failed to submit vote');
+      }
+      // Hide buttons after voting
       setHasVoted(true);
     } catch (error) {
-      console.error('Failed to submit vote', error);
+      console.error('Error submitting vote:', error);
     }
-  }
+  };
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const response = await fetch('/api/votingstatus');
-      const data = await response.json();
-      setIsVotingActive(data.is_active === 1);
-    }, 1000); // Poll every 1 second
-  
-    return () => clearInterval(interval);
-  }, []);
-  
   return (
     <div className="container">
-      {!hasVoted && isVotingActive ? (
+      {timeRemaining === null ? (
+        <div className="container">
+          <div className="results">
+            <h2>ПЕРЕРВА У ГОЛОСУВАННІ</h2>
+          </div>
+        </div>
+      ) : isVotingActive && !hasVoted ? (
         <>
           <div className="buttons">
             <button className="vote-button green" onClick={() => handleVote('yes')}>ЗА</button>
@@ -62,7 +85,7 @@ const VotingPage = () => {
             <button className="vote-button red" onClick={() => handleVote('no')}>ПРОТИ</button>
           </div>
           <div className="timer">
-            ГОЛОСУВАННЯ ЗАВЕРШИТЬСЯ ЧЕРЕЗ: {timeLeft} сек
+            ГОЛОСУВАННЯ ЗАВЕРШИТЬСЯ ЧЕРЕЗ: {timeRemaining} сек
           </div>
         </>
       ) : (
@@ -70,61 +93,6 @@ const VotingPage = () => {
           <h2>ГОЛОСУВАННЯ ЗАВЕРШЕНО</h2>
         </div>
       )}
-      <style jsx>{`
-        .container {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          background-color: blue;
-          color: white;
-          text-align: center;
-        }
-        .buttons {
-          display: flex;
-          width: 100%;
-          max-width: 600px;
-          justify-content: space-around;
-          margin-bottom: 20px;
-        }
-        .vote-button {
-          width: 30%;
-          padding: 20px;
-          font-size: 20px;
-          font-weight: bold;
-          color: white;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-        }
-        .green {
-          background-color: green;
-        }
-        .yellow {
-          background-color: #ffcc00;
-        }
-        .red {
-          background-color: red;
-        }
-        .timer {
-          font-size: 18px;
-          margin-top: 20px;
-        }
-        .results h2 {
-          margin-bottom: 20px;
-        }
-
-        @media (max-width: 600px) {
-          .buttons {
-            flex-direction: column;
-            gap: 10px;
-          }
-          .vote-button {
-            width: 100%;
-          }
-        }
-      `}</style>
     </div>
   );
 };

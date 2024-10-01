@@ -1,25 +1,21 @@
-import { openDB } from './db';
-import { notifyClients } from './socket';
+import { openDB } from '../../src/db';
+import { startVote } from '../../src/votingmanager';
+const defaultTimerDuration = 10;
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const db = await openDB();
       
-      // Create the table if it doesn't exist and reset votes
+      // Reset votes
       await db.exec(`
-        CREATE TABLE IF NOT EXISTS votes (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          vote TEXT
-        );
         DELETE FROM votes;  -- Reset the votes
       `);
       
-      // Set voting status to active (1)
-      await db.run('UPDATE voting_status SET is_active = 1 WHERE id = 1');
-
-      // Notify all connected clients
-      notifyClients({ type: 'VOTING_STARTED' });
+      // Get duration from request body or set default duration
+      const { duration } = req.body;
+      const timerDuration = duration ? parseInt(duration) : defaultTimerDuration;
+      await startVote(timerDuration); // Start the voting and timer
 
       res.status(200).json({ message: 'Voting started' });
     } catch (err) {

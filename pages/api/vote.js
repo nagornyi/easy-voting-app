@@ -1,6 +1,14 @@
-import { openDB } from './db';
+import { openDB } from '../../src/db';
+import { getVotingStatus } from '../../src/votingmanager';
 
 export default async function handler(req, res) {
+  const { is_active } = await getVotingStatus();
+
+  if (is_active !== 1) {
+      res.status(403).json({ message: 'Voting is not active' });
+      return;
+  }
+  
   if (req.method === 'POST') {
     const { vote } = req.body;
 

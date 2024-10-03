@@ -54,3 +54,39 @@
     width: 100%;
   }
 }
+
+.result-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: black;
+  color: white;
+  font-family: 'Roboto', sans-serif;            
+}
+.summary {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.resultheader {
+  font-size: 3rem;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.decision {
+  font-size: 3rem;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.accepted, .yesvotes {
+  color: green;
+}
+.rejected, .novotes {
+  color: red;
+}
+.abstainvotes {
+  color: yellow;
+}

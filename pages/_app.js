@@ -1,15 +1,11 @@
-import "@/styles/globals.css";
-import Head from 'next/head';
+// pages/_app.js
+import { ApolloProvider } from '@apollo/client';
+import client from '../apollo-client';
 
 export default function App({ Component, pageProps }) {
   return (
-    <>
-      <Head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"
-        />
-      </Head>
+    <ApolloProvider client={client}>
       <Component {...pageProps} />
-    </>
+    </ApolloProvider>
   );
 }

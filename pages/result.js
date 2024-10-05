@@ -1,65 +1,36 @@
-import { useEffect, useState } from 'react';
+import { gql, useSubscription } from '@apollo/client';
 
-export default function Result() {
-  const [isVotingActive, setIsVotingActive] = useState(true);
-  const [results, setResults] = useState(null);
-  const [timeRemaining, setTimeRemaining] = useState(null);
-
-  // Poll voting status every second
-  useEffect(() => {
-    const pollVotingStatus = setInterval(async () => {
-      try {
-        const res = await fetch('/api/votingstatus');
-        const data = await res.json();
-        setIsVotingActive(data.is_active === 1);
-        setTimeRemaining(data.time_remaining);
-
-        if (!data.is_active) {
-          // Fetch result only once when voting is inactive
-          const resultRes = await fetch('/api/getresult');
-          const resultData = await resultRes.json();
-          setResults(resultData);
-        }
-      } catch (error) {
-        console.error('Error fetching voting status or result:', error);
-      }
-    }, 1000);
-
-    return () => clearInterval(pollVotingStatus);
-  }, []);
-
-  if (isVotingActive && timeRemaining > 0) {
-    return (
-      <div className="result-screen">
-        <div className="resultheader">
-          ТРИВАЄ ГОЛОСУВАННЯ
-        </div>
-      </div>
-    );
+const VOTING_UPDATED = gql`
+  subscription VotingUpdated {
+    votingUpdated {
+      yes
+      no
+      abstain
+      total
+      decision
+    }
   }
+`;
 
-  if (results) {
-    const { yes, no, abstain } = results;
-    const total = yes + no + abstain;
-    const decision = yes > total / 2 ? 'РІШЕННЯ ПРИЙНЯТО' : 'РІШЕННЯ НЕ ПРИЙНЯТО';
+const VotingResults = () => {
+  const { data, loading, error } = useSubscription(VOTING_UPDATED);
 
-    return (
-      <div className="result-screen">
-        <div className="resultheader">
-          ПІДСУМКИ ГОЛОСУВАННЯ
-        </div>
-        <div className="summary">
-          <p>ЗА: <span className='yesvotes'>{yes}</span></p>
-          <p>ПРОТИ: <span className='novotes'>{no}</span></p>
-          <p>УТРИМАЛИСЬ: <span className='abstainvotes'>{abstain}</span></p>
-          <p>ВСЬОГО: {total}</p>
-        </div>
-        <div className={`decision ${decision === 'РІШЕННЯ ПРИЙНЯТО' ? 'accepted' : 'rejected'}`}>
-          {decision}
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
 
-  return null; // Return nothing if no data yet
-}
+  console.log(data);
+
+  const { yes, no, abstain, total, decision } = data?.votingUpdated || {};
+
+  return (
+    <div>
+      <p>Yes: {yes}</p>
+      <p>No: {no}</p>
+      <p>Abstain: {abstain}</p>
+      <p>Total: {total}</p>
+      <p>Decision: {decision}</p>
+    </div>
+  );
+};
+
+export default VotingResults;

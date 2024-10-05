@@ -33,6 +33,11 @@ const startVote = async (timer_duration) => {
             votingActive = false;
             timeRemaining = 0;
             await saveVotingStatus(votingActive, timeRemaining);
+            global.isVotingActive = false;
+            // Call the global function to notify connected clients
+            if (typeof global.onVotingEnd === 'function') {
+              global.onVotingEnd();
+            }
         }
     }, 1000);
 };

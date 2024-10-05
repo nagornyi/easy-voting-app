@@ -17,6 +17,12 @@ export default async function handler(req, res) {
       const timerDuration = duration ? parseInt(duration) : defaultTimerDuration;
       await startVote(timerDuration); // Start the voting and timer
 
+      global.isVotingActive = true;
+      // Call the global function to notify connected clients
+      if (typeof global.onVotingStart === 'function') {
+        global.onVotingStart();
+      }
+
       res.status(200).json({ message: 'Voting started' });
     } catch (err) {
       res.status(500).json({ message: 'Failed to start voting' });

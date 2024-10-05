@@ -3,32 +3,60 @@ import { useEffect, useState } from 'react';
 export default function Result() {
   const [isVotingActive, setIsVotingActive] = useState(true);
   const [results, setResults] = useState(null);
-  const [timeRemaining, setTimeRemaining] = useState(null);
 
-  // Poll voting status every second
   useEffect(() => {
-    const pollVotingStatus = setInterval(async () => {
-      try {
-        const res = await fetch('/api/votingstatus');
-        const data = await res.json();
-        setIsVotingActive(data.is_active === 1);
-        setTimeRemaining(data.time_remaining);
+    // Make sure this runs only in the browser
+    if (typeof window !== 'undefined') {   
+      console.log("INIT OF EVENTSOURCE START");
+      const eventSource = new EventSource('/api/updates');
+      console.log("EVENTSOURCE CONTENTS: "+JSON.stringify(eventSource));
+  
+      eventSource.onmessage = (event) => {
+        console.log("PARSING EVENT");
+        const data = JSON.parse(event.data);
+        console.log('Received event:', data);
+        if (data.type === 'VOTING_STARTED') {
+          console.log('Voting has started');
+          setIsVotingActive(true);
+        } else if (data.type === 'VOTING_ENDED') {
+          console.log('Voting has ended');
+          setIsVotingActive(false);
+        }
+      };
+  
+      eventSource.onerror = (error) => {
+        console.error('SSE connection error', error);
+        setTimeout(() => {
+          const newEventSource = new EventSource('/api/updates');
+          // Repeat the same onmessage and onerror logic
+        }, 5000); // Retry after 5 seconds
+      };
 
-        if (!data.is_active) {
-          // Fetch result only once when voting is inactive
+      // Clean up on unmount
+      return () => {
+        eventSource.close();
+      };
+    }
+  }, []);  
+
+  // Poll voting status every second, but only when voting is not active
+  useEffect(() => {
+    if (!isVotingActive) {
+      const pollVotingStatus = setInterval(async () => {
+        try {
           const resultRes = await fetch('/api/getresult');
           const resultData = await resultRes.json();
           setResults(resultData);
+        } catch (error) {
+          console.error('Error fetching voting result:', error);
         }
-      } catch (error) {
-        console.error('Error fetching voting status or result:', error);
-      }
-    }, 1000);
+      }, 1000);
 
-    return () => clearInterval(pollVotingStatus);
-  }, []);
+      return () => clearInterval(pollVotingStatus);
+    }
+  }, [isVotingActive]);
 
-  if (isVotingActive && timeRemaining > 0) {
+  if (isVotingActive) {
     return (
       <div className="result-screen">
         <div className="resultheader">
@@ -61,5 +89,5 @@ export default function Result() {
     );
   }
 
-  return null; // Return nothing if no data yet
+  return null;
 }

@@ -66,6 +66,27 @@ export async function getVotingStatus(client) {
   };
 }
 
+// Set recess status (a break during the parliamentary session)
+export async function setRecessStatus(client, isOnRecess) {
+  await client.hSet('recess_status', { is_onrecess: isOnRecess ? 1 : 0 });
+}
+
+// Get recess status (a break during the parliamentary session)
+export async function getRecessStatus(client) {
+  const status = await client.hGetAll('recess_status');
+
+  // Check if status is empty, meaning voting_status is not set
+  if (Object.keys(status).length === 0) {
+    return {
+      is_onrecess: false // Default value
+    };
+  }
+
+  return {
+    is_onrecess: status.is_onrecess === '1', // Convert "1" to true and "0" to false    
+  };
+}
+
 export async function deleteAllVotes(client) {
   // Get all keys that match the "vote:*" pattern
   const keys = await client.keys('vote:*');

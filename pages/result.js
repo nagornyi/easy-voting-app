@@ -4,6 +4,7 @@ export default function Result() {
   const [isVotingActive, setIsVotingActive] = useState(true);
   const [results, setResults] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(null);
+  const [isOnRecess, setIsOnRecess] = useState(false);
 
   // Poll voting status every second
   useEffect(() => {
@@ -15,10 +16,15 @@ export default function Result() {
         setTimeRemaining(data.time_remaining);
 
         if (!data.is_active) {
-          // Fetch result only once when voting is inactive
+          // Fetch result only when voting is inactive
           const resultRes = await fetch('/api/getresult');
           const resultData = await resultRes.json();
           setResults(resultData);
+
+          // Check if the parliament is on recess when voting is inactive
+          const recessRes = await fetch('/api/isonrecess');
+          const recessData = await recessRes.json();
+          setIsOnRecess(recessData.is_onrecess);
         }
       } catch (error) {
         console.error('Error fetching voting status or result:', error);
@@ -27,6 +33,16 @@ export default function Result() {
 
     return () => clearInterval(pollVotingStatus);
   }, []);
+
+  if (isOnRecess) {
+    return (
+      <div className="result-screen">
+        <div className="resultheader">
+          ПАРЛАМЕНТ НА КАНІКУЛАХ
+        </div>
+      </div>
+    );
+  }
 
   if (isVotingActive && timeRemaining > 0) {
     return (

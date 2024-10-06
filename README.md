@@ -54,6 +54,20 @@ curl -X POST http://localhost:3000/api/startvote -H "Content-Type: application/j
 curl http://localhost:3000/api/getresult
 ```
 
+**Reset all votes:**
+
+```bash
+curl -X POST http://localhost:3000/api/resetvotes
+```
+
+**Set recess status (a break during the parliamentary session), this is used for displaying a message on result page, false by default**
+
+```bash
+curl -X POST http://localhost:3000/api/setrecess -H "Content-Type: application/json" -d '{"status": true}'
+
+curl -X POST http://localhost:3000/api/setrecess -H "Content-Type: application/json" -d '{"status": false}'
+```
+
 Example response:
 
 ```json

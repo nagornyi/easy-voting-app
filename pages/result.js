@@ -11,7 +11,7 @@ export default function Result() {
       try {
         const res = await fetch('/api/votingstatus');
         const data = await res.json();
-        setIsVotingActive(data.is_active === 1);
+        setIsVotingActive(data.is_active);
         setTimeRemaining(data.time_remaining);
 
         if (!data.is_active) {

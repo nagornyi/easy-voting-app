@@ -1,4 +1,4 @@
-import { openDB } from './db';
+import { openDB, setVotingStatus } from './db';
 let votingActive = false;
 let timeRemaining = 0;
 let startTime = null;
@@ -6,13 +6,7 @@ let intervalId = null;
 
 const saveVotingStatus = async (is_active, time_remaining) => {
   const db = await openDB();
-  const existing = await db.get('SELECT * FROM voting_status WHERE id = 1');
-  
-  if (existing) {
-    await db.run('UPDATE voting_status SET is_active = ?, time_remaining = ? WHERE id = 1', [is_active, time_remaining]);
-  } else {
-    await db.run('INSERT INTO voting_status (is_active, time_remaining) VALUES (?, ?)', [is_active, time_remaining]);
-  }
+  await setVotingStatus(db, is_active, time_remaining);
 };
 
 const startVote = async (timer_duration) => {
@@ -37,10 +31,4 @@ const startVote = async (timer_duration) => {
     }, 1000);
 };
 
-const getVotingStatus = async () => {
-  const db = await openDB();
-  const row = await db.get('SELECT is_active, time_remaining FROM voting_status WHERE id = 1');
-  return row || { is_active: 0, time_remaining: 0 };  // Return defaults if no data is found
-};
-
-export { startVote, getVotingStatus };
+export { startVote };

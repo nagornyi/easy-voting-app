@@ -1,4 +1,4 @@
-import { openDB } from '../../src/db';
+import { openDB, deleteAllVotes } from '../../src/db';
 import { startVote } from '../../src/votingmanager';
 const defaultTimerDuration = 10;
 
@@ -7,10 +7,8 @@ export default async function handler(req, res) {
     try {
       const db = await openDB();
       
-      // Reset votes
-      await db.exec(`
-        DELETE FROM votes;  -- Reset the votes
-      `);
+      // Delete all votes
+      await deleteAllVotes(db);
       
       // Get duration from request body or set default duration
       const { duration } = req.body;

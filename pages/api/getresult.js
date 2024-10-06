@@ -1,9 +1,9 @@
-import { openDB } from '../../src/db';
+import { openDB, getVotes } from '../../src/db';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     const db = await openDB();
-    const votes = await db.all('SELECT vote, COUNT(*) as count FROM votes GROUP BY vote');
+    const votes = await getVotes(db);    
     
     const results = {
       yes: 0,
@@ -11,8 +11,10 @@ export default async function handler(req, res) {
       no: 0
     };
 
-    votes.forEach(({ vote, count }) => {
-      results[vote] = count;
+    votes.forEach((vote) => {
+      if (results[vote] !== undefined) {
+        results[vote] += 1; // Increment the count for the vote
+      }
     });
 
     res.status(200).json(results);

@@ -18,7 +18,7 @@ const VotingPage = () => {
             throw new Error('Failed to fetch voting status');
           }
           const data = await response.json();
-          if (data.is_active === 1) { // If voting is active
+          if (data.is_active) { // If voting is active
             setIsVotingActive(true); // Set voting active status to true
             if (timeRemaining <= 0) {
               setHasVoted(false); // Reset hasVoted if the previous voting has ended

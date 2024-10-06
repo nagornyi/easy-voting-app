@@ -1,10 +1,10 @@
-import { openDB } from '../../src/db';
-import { getVotingStatus } from '../../src/votingmanager';
+import { openDB, getVotingStatus, storeVote } from '../../src/db';
 
 export default async function handler(req, res) {
-  const { is_active } = await getVotingStatus();
+  const db = await openDB();
+  const { is_active } = await getVotingStatus(db);
 
-  if (is_active !== 1) {
+  if (!is_active) {
       res.status(403).json({ message: 'Voting is not active' });
       return;
   }
@@ -17,8 +17,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      const db = await openDB();
-      await db.run('INSERT INTO votes (vote) VALUES (?)', vote);
+      await storeVote(db, vote);
       res.status(200).json({ message: 'Vote recorded' });
     } catch (err) {
       res.status(500).json({ message: 'Failed to record vote' });

@@ -57,7 +57,17 @@ export default function Result() {
   if (results) {
     const { yes, no, abstain } = results;
     const total = yes + no + abstain;
-    const decision = yes > total / 2 ? 'РІШЕННЯ ПРИЙНЯТО' : 'РІШЕННЯ НЕ ПРИЙНЯТО';
+    var decision = 'ВІДСУТНІСТЬ КВОРУМУ';
+    var decision_type = 'noquorum';
+    if (total > 0) {
+      if (yes > total / 2) {
+        decision = 'РІШЕННЯ ПРИЙНЯТО';
+        decision_type = 'accepted';
+      } else {
+        decision = 'РІШЕННЯ НЕ ПРИЙНЯТО';
+        decision_type = 'rejected';
+      }      
+    }
 
     return (
       <div className="result-screen">
@@ -70,7 +80,7 @@ export default function Result() {
           <p>УТРИМАЛИСЬ: <span className='abstainvotes'>{abstain}</span></p>
           <p>ВСЬОГО: {total}</p>
         </div>
-        <div className={`decision ${decision === 'РІШЕННЯ ПРИЙНЯТО' ? 'accepted' : 'rejected'}`}>
+        <div className={`decision ${decision_type}`}>
           {decision}
         </div>
       </div>

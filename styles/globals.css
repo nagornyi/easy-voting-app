@@ -87,6 +87,6 @@
 .rejected, .novotes {
   color: red;
 }
-.abstainvotes {
+.noquorum, .abstainvotes {
   color: yellow;
 }

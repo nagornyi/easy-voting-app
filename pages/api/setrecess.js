@@ -9,6 +9,7 @@ export default async function handler(req, res) {
       const recessStatus = status;
     
       await setRecessStatus(db, recessStatus);
+      
       res.status(200).json({ message: `Recess status changed to: ${recessStatus}` });
     } catch (err) {
       res.status(500).json({ message: 'Failed to change recess status' });

@@ -5,31 +5,32 @@ export default function Result() {
   const [results, setResults] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isOnRecess, setIsOnRecess] = useState(false);
+  const [votingNumber, setVotingNumber] = useState(false);
 
   // Poll voting status every second
   useEffect(() => {
     const pollVotingStatus = setInterval(async () => {
       try {
-        const res = await fetch('/api/votingstatus');
+        const res = await fetch('/api/status');
         const data = await res.json();
         setIsVotingActive(data.is_active);
         setTimeRemaining(data.time_remaining);
 
         if (!data.is_active) {
-          // Fetch result only when voting is inactive
-          const resultRes = await fetch('/api/getresult');
-          const resultData = await resultRes.json();
+          // Set result only when voting is inactive          
+          const resultData = await data.results;
           setResults(resultData);
 
-          // Check if the parliament is on recess when voting is inactive
-          const recessRes = await fetch('/api/isonrecess');
-          const recessData = await recessRes.json();
-          setIsOnRecess(recessData.is_onrecess);
+          // Set recess status when voting is inactive
+          setIsOnRecess(data.is_onrecess);
+
+          // Set voting number when voting is inactive
+          setVotingNumber(data.voting_number);
         }
       } catch (error) {
         console.error('Error fetching voting status or result:', error);
       }
-    }, 1000);
+    }, 500);
 
     return () => clearInterval(pollVotingStatus);
   }, []);
@@ -54,9 +55,19 @@ export default function Result() {
     );
   }
 
+  if (votingNumber === 0) {
+    return (
+      <div className="result-screen">
+        <div className="resultheader">
+          НОВА СЕСІЯ ВЕРХОВНОЇ РАДИ
+        </div>
+      </div>
+    );
+  }
+
   if (results) {
     const { yes, no, abstain } = results;
-    const total = yes + no + abstain;
+    const total = yes + no + abstain;    
     var decision = 'ВІДСУТНІСТЬ КВОРУМУ';
     var decision_type = 'noquorum';
     if (total > 0) {
@@ -72,14 +83,26 @@ export default function Result() {
     return (
       <div className="result-screen">
         <div className="resultheader">
-          ПІДСУМКИ ГОЛОСУВАННЯ
+          ПІДСУМКИ ГОЛОСУВАННЯ&nbsp;&nbsp;&nbsp;&nbsp;<span className='votingnum'>№ {votingNumber}</span>
         </div>
-        <div className="summary">
-          <p>ЗА: <span className='yesvotes'>{yes}</span></p>
-          <p>ПРОТИ: <span className='novotes'>{no}</span></p>
-          <p>УТРИМАЛИСЬ: <span className='abstainvotes'>{abstain}</span></p>
-          <p>ВСЬОГО: {total}</p>
+
+        <div className="summary-wrapper">
+          <div className="summary">
+            <div className="column">
+              <p>ЗА:</p>
+              <p>ПРОТИ:</p>
+              <p>УТРИМАЛИСЬ:</p>
+              <p>ВСЬОГО:</p>
+            </div>
+            <div className="column">
+              <p><span className='yesvotes'>{yes}</span></p>
+              <p><span className='novotes'>{no}</span></p>
+              <p><span className='abstainvotes'>{abstain}</span></p>
+              <p>{total}</p>
+            </div>
+          </div>
         </div>
+
         <div className={`decision ${decision_type}`}>
           {decision}
         </div>

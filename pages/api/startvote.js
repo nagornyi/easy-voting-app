@@ -1,4 +1,4 @@
-import { openDB, deleteAllVotes } from '../../src/db';
+import { openDB, deleteAllVotes, getVotingNumber, setVotingNumber } from '../../src/db';
 import { startVote } from '../../src/votingmanager';
 const defaultTimerDuration = 10;
 
@@ -9,6 +9,13 @@ export default async function handler(req, res) {
       
       // Delete all votes
       await deleteAllVotes(db);
+
+      // Get voting number
+      const { voting_number } = await getVotingNumber(db);
+      const votingNumber = voting_number + 1;
+
+      // Increment voting number
+      await setVotingNumber(db, votingNumber);
       
       // Get duration from request body or set default duration
       const { duration } = req.body;

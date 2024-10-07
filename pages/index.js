@@ -25,12 +25,12 @@ const VotingPage = () => {
             }
           }
           if (data.time_remaining > 0) {
-            setTimeRemaining(data.time_remaining); // Set time remaining only once
+            setTimeRemaining(data.time_remaining - 1); // Set time remaining only once (minus 1 second to prevent voting failures)
           }
         } catch (error) {
           console.error('Error fetching voting status:', error);
         }
-      }, 1000); // Poll every second
+      }, 500); // Poll every 500ms
     }
 
     if (timeRemaining <= 0) {

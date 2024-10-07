@@ -87,6 +87,27 @@ export async function getRecessStatus(client) {
   };
 }
 
+// Set voting number
+export async function setVotingNumber(client, votingNumber) {
+  await client.hSet('voting_number', { voting_number: votingNumber });
+}
+
+// Get voting number
+export async function getVotingNumber(client) {
+  const votingNumber = await client.hGetAll('voting_number');
+
+  // Check if voting number is empty, meaning it's the first voting of the session
+  if (Object.keys(votingNumber).length === 0) {
+    return {
+      voting_number: 0 // Default value
+    };
+  }
+
+  return {
+    voting_number: parseInt(votingNumber.voting_number, 10) || 0 // Convert voting_number to integer
+  };
+}
+
 export async function deleteAllVotes(client) {
   // Get all keys that match the "vote:*" pattern
   const keys = await client.keys('vote:*');

@@ -2,79 +2,86 @@ Single page responsive voting app with a simple API implemented in Next.js, insp
 
 ## Install the dependencies
 
-```bash
+Install packages:
+
+```sh
 npm install --registry https://registry.npmjs.org
 ```
 
-## Start the development server
+Also you need to install Redis. In production environment please set the following variables to access Redis server, you can replace `localhost` with the server of your choice if Redis is deployed on a different instance.
 
-```bash
+```sh
+export NODE_ENV="production"
+export REDIS_URL="redis://localhost:6379"
+```
+
+## Start the development server on port 3000
+
+```sh
 npm run dev
 ```
 
 ## Build the production version
 
-```bash
+```sh
 npm run build
 ```
 
 ## Start the production server
 
-```bash
+```sh
 npm run start
 ```
 
 Optional: Serve on a Different Port
 
-```bash
+```sh
 PORT=4000 npm run start
 ```
 
-## How to vote and view the voting results
+## Voting workflow
 
-Each participant should go to http://localhost:3000, wait for the voting to start and then vote. The latest voting results can be viewed on a separate screen http://localhost:3000/result
+1. Each voter opens the `/` page and waits for the voting process to start
+2. The administrator user sends a single POST `/api/startsession` request to start new parliamentary session
+3. The administrator user sends a single POST `/api/startvote` request to start new voting procedure
+4. Voters cast their votes on the `/` page
+5. After the voting has finished, the latest voting results can be viewed on the `/result` page
 
 ## API
 
-**Start new voting process with a 10 sec timer (this is the default duration):**
+In production you should replace `localhost:3000` with the production server hostname.
 
-```bash
+### Start new parliamentary session (resets the voting number)
+
+```sh
+curl -X POST http://localhost:3000/api/startsession
+```
+
+### Start new voting process with a 10 sec timer (this is the default duration)
+
+```sh
 curl -X POST http://localhost:3000/api/startvote
 ```
 
-**Start new voting process with a 15 sec timer:**
+### Start new voting process with a 15 sec timer
 
-```bash
+```sh
 curl -X POST http://localhost:3000/api/startvote -H "Content-Type: application/json" -d '{"duration": 15}'
 ```
 
-**Get voting results:**
+### Get voting results
 
-```bash
+```sh
 curl http://localhost:3000/api/getresult
-```
-
-**Reset all votes:**
-
-```bash
-curl -X POST http://localhost:3000/api/resetvotes
-```
-
-**Set recess status (a break during the parliamentary session), this is used for displaying a message on result page, false by default**
-
-```bash
-curl -X POST http://localhost:3000/api/setrecess -H "Content-Type: application/json" -d '{"status": true}'
-
-curl -X POST http://localhost:3000/api/setrecess -H "Content-Type: application/json" -d '{"status": false}'
 ```
 
 Example response:
 
 ```json
-{"yes":51, "abstain":3, "no":10}
+{"yes": 51, "abstain": 3, "no": 10}
 ```
 
-**Get voting status:**
+### Get voting status
 
 ```bash
 curl http://localhost:3000/api/votingstatus
@@ -83,7 +90,33 @@ curl http://localhost:3000/api/votingstatus
 Example response:
 
 ```json
-{"is_active":1, "time_remaining":5}
+{"is_active": true, "time_remaining": 5}
+```
+
+### Get all the information with one request
+
+```bash
+curl http://localhost:3000/api/status
+```
+
+Example response:
+
+```json
+{"is_active": false, "time_remaining": 0, "is_onrecess": false, "voting_number": 3, "results": {"yes": 0,"abstain": 0,"no": 1}}
+```
+
+### Reset all votes
+
+```sh
+curl -X POST http://localhost:3000/api/resetvotes
+```
+
+### Set recess status (a break during the parliamentary session), this is used for displaying a message on /result page, false by default
+
+```sh
+curl -X POST http://localhost:3000/api/setrecess -H "Content-Type: application/json" -d '{"status": true}'
+
+curl -X POST http://localhost:3000/api/setrecess -H "Content-Type: application/json" -d '{"status": false}'
 ```
 
 ## Load testing
@@ -117,11 +150,9 @@ k6 run --env VOTERS=100 --env HOSTNAME=https://your-host.com test/voting-load-te
 
 The number of voters defaults to 10 if the VOTERS environment variable is not provided. The hostname defaults to http://localhost:3000 if not provided.
 
-### Load Test Scenario
+### Load test scenario
 
-**Key Points:**
-
-*Voters:* Controlled via VOTERS environment variable (default is 100).
+*Voters:* Controlled via VOTERS environment variable (default is 10).
 
 *Hostname:* Configurable via HOSTNAME environment variable (default is localhost:3000).
 

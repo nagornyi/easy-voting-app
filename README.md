@@ -85,3 +85,50 @@ Example response:
 ```json
 {"is_active":1, "time_remaining":5}
 ```
+
+## Load testing
+
+You need to install the k6 tool (https://k6.io/) to run the load tests.
+
+On Mac OS X (via Homebrew):
+
+```sh
+brew install k6
+```
+
+On Linux (via APT for Ubuntu/Debian):
+
+```sh
+sudo apt update
+sudo apt install k6
+```
+
+On Windows (via Chocolatey):
+
+```sh
+choco install k6
+```
+
+Once k6 is installed, you can run the load test script with:
+
+```sh
+k6 run --env VOTERS=100 --env HOSTNAME=https://your-host.com test/voting-load-test.js
+```
+
+The number of voters defaults to 10 if the VOTERS environment variable is not provided. The hostname defaults to http://localhost:3000 if not provided.
+
+### Load Test Scenario
+
+**Key Points:**
+
+*Voters:* Controlled via VOTERS environment variable (default is 100).
+
+*Hostname:* Configurable via HOSTNAME environment variable (default is localhost:3000).
+
+**Stage 1:** Each user polls /api/votingstatus every second for 30 seconds.
+
+**Stage 2:** A single admin user sends a POST request to /api/startvote to start voting.
+
+**Stage 3:** Each user sends a random vote (/api/vote) and continues polling /api/votingstatus until the voting period ends (10 seconds).
+
+**Stage 4:** A single admin user sends a GET request to /api/getresult and checks that the total votes equal the number of voters.

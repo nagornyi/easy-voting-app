@@ -1,5 +1,25 @@
 import { useEffect, useState } from 'react';
 
+function Clock() {
+  const [time, setTime] = useState('');
+
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      setTime(`${hours}:${minutes}`);
+    };
+
+    updateClock(); // Initial call to display clock immediately
+    const intervalId = setInterval(updateClock, 1000 * 60); // Update clock every minute
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }, []);
+
+  return <div className="clock">{time}</div>;
+}
+
 export default function Result() {
   const [isVotingActive, setIsVotingActive] = useState(true);
   const [results, setResults] = useState(null);
@@ -82,6 +102,10 @@ export default function Result() {
 
     return (
       <div className="result-screen">
+        {/* Clock in the upper-right corner */}
+        <Clock />
+
+        {/* Voting Results */}
         <div className="resultheader">
           ПІДСУМКИ ГОЛОСУВАННЯ&nbsp;&nbsp;&nbsp;&nbsp;<span className='votingnum'>№ {votingNumber}</span>
         </div>

@@ -77,7 +77,7 @@ const VotingPage = () => {
             <h2>ПЕРЕРВА У ГОЛОСУВАННІ</h2>
           </div>
         </div>
-      ) : isVotingActive && !hasVoted ? (
+      ) : isVotingActive && timeRemaining > 0 && !hasVoted ? (
         <>
           <div className="buttons">
             <button className="vote-button green" onClick={() => handleVote('yes')}>ЗА</button>

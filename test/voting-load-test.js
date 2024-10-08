@@ -1,60 +1,84 @@
 import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { SharedArray } from 'k6/data';
+import { sleep, check } from 'k6';
+import { randomItem } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
 
-const voters = __ENV.VOTERS || 10; // Default to 10 users
-const hostname = __ENV.HOSTNAME || 'http://localhost:3000';
+const HOSTNAME = __ENV.HOSTNAME || 'http://localhost:3000';
+const VOTERS = parseInt(__ENV.VOTERS) || 10;
 
-// Polling for voting status every second
 export const options = {
-  stages: [
-    { duration: '30s', target: voters },  // Stage 1: Polling
-    { duration: '1s', target: 1 },        // Stage 2: Admin starts the vote
-    { duration: '10s', target: voters },  // Stage 3: Voting
-    { duration: '1s', target: 1 },        // Stage 4: Admin gets results
-  ],
+  scenarios: {
+    polling: {
+      executor: 'constant-vus',
+      vus: VOTERS,
+      duration: '30s',
+      startTime: '0s',      
+      exec: 'polling',  // Specify the function to run
+    },
+    startVote: {
+      executor: 'shared-iterations',
+      vus: 1,
+      iterations: 1,
+      startTime: '30s',      
+      exec: 'startVote',  // Specify the function to run
+    },
+    voting: {
+      executor: 'constant-vus',
+      vus: VOTERS,
+      duration: '10s',
+      startTime: '31s',      
+      exec: 'voting',  // Specify the function to run
+    },
+    getResult: {
+      executor: 'shared-iterations',
+      vus: 1,
+      iterations: 1,
+      startTime: '41s',      
+      exec: 'getResult',  // Specify the function to run
+    },
+  },
 };
 
-export default function () {
-  const stage = __ITER;  // Get the current iteration
+export function polling() {
+  const res = http.get(`${HOSTNAME}/api/votingstatus`);
+  check(res, { 'GET /api/votingstatus status is 200': (r) => r.status === 200 });
+  sleep(0.5);
+}
 
-  if (stage < voters) {
-    // Stage 1: Polling for voting status every second
-    const res = http.get(`${hostname}/api/votingstatus`);
-    check(res, {
-      'Polling status is 200': (r) => r.status === 200,
-    });
-    sleep(1);
-  } else if (stage === voters) {
-    // Stage 2: Admin starts the vote (Single request)
-    const res = http.post(`${hostname}/api/startvote`);
-    check(res, {
-      'Start vote response is 200': (r) => r.status === 200,
-    });
-  } else if (stage > voters && stage <= voters * 2) {
-    // Stage 3: Voting - Each user votes after a random sleep and then polls status
-    const randomSleep = Math.floor(Math.random() * 7) + 2;  // Random sleep between 2 and 9 seconds
-    sleep(randomSleep);
+export function startVote() {
+  const res = http.post(`${HOSTNAME}/api/startvote`);
+  check(res, { 'POST /api/startvote status is 200': (r) => r.status === 200 });
+}
 
-    const vote = Math.random() < 0.5 ? 'yes' : 'no';  // Random vote
-    const resVote = http.post(`${hostname}/api/vote`, { vote });
-    check(resVote, {
-      'Vote response is 200': (r) => r.status === 200,
-    });
+export function voting() {
+  let hasVoted = false;
+  const min = 2;
+  const max = 8;
+  const voteTime = Math.random() * (max - min) + min; // Random time within 10 seconds
 
-    // Immediately start polling again after voting
-    const resPoll = http.get(`${hostname}/api/votingstatus`);
-    check(resPoll, {
-      'Polling status after vote is 200': (r) => r.status === 200,
-    });
-    sleep(1);
-  } else if (stage > voters * 2) {
-    // Stage 4: Admin gets the result
-    const res = http.get(`${hostname}/api/getresult`);
-    const totalVotes = res.json().yes + res.json().no + res.json().abstain;
-    check(res, {
-      'Get result response is 200': (r) => r.status === 200,
-      'Total votes match the number of voters': () => totalVotes === voters,
-    });
+  const startTime = new Date().getTime();
+  while (new Date().getTime() - startTime < 10000) { // Run for 10 seconds
+    if (!hasVoted && (new Date().getTime() - startTime) > voteTime * 1000) {
+      // Time to vote
+      const vote = randomItem(['yes', 'no', 'abstain']);
+      const voteRes = http.post(`${HOSTNAME}/api/vote`, JSON.stringify({ vote }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+      check(voteRes, { 'POST /api/vote status is 200': (r) => r.status === 200 });
+      hasVoted = true;
+    }
+
+    // Continue polling
+    const statusRes = http.get(`${HOSTNAME}/api/votingstatus`);
+    check(statusRes, { 'GET /api/votingstatus status is 200': (r) => r.status === 200 });
+    sleep(0.5);
   }
+}
+
+export function getResult() {
+  const res = http.get(`${HOSTNAME}/api/getresult`);
+  check(res, { 'GET /api/getresult status is 200': (r) => r.status === 200 });
+  
+  const result = JSON.parse(res.body);
+  const totalVotes = result.yes + result.no + result.abstain;
+  check(res, { 'Total votes match number of voters': () => totalVotes === VOTERS });
 }

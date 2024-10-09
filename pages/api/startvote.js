@@ -3,6 +3,18 @@ import { startVote } from '../../src/votingmanager';
 const defaultTimerDuration = 10;
 
 export default async function handler(req, res) {
+  function makeid(length) {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let counter = 0;
+    while (counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      counter += 1;
+    }
+    return result;
+  }
+
   if (req.method === 'POST') {
     try {
       const db = await openDB();
@@ -14,8 +26,11 @@ export default async function handler(req, res) {
       const { voting_number } = await getVotingNumber(db);
       const votingNumber = voting_number + 1;
 
+      // Generate unique ID for every voting
+      const votingID = makeid(8);
+
       // Increment voting number
-      await setVotingNumber(db, votingNumber);
+      await setVotingNumber(db, votingNumber, votingID);
       
       // Get duration from request body or set default duration
       const { duration } = req.body;

@@ -25,7 +25,7 @@ export default function Result() {
   const [results, setResults] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isOnRecess, setIsOnRecess] = useState(false);
-  const [votingNumber, setVotingNumber] = useState(false);
+  const [votingNumber, setVotingNumber] = useState(null);
 
   // Poll voting status every second
   useEffect(() => {

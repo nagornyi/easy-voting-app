@@ -6,7 +6,7 @@ export default async function handler(req, res) {
       const db = await openDB();
       
       // Reset voting number
-      await setVotingNumber(db, 0);
+      await setVotingNumber(db, 0, "newsession");
 
       // Delete all votes
       await deleteAllVotes(db);

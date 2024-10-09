@@ -4,8 +4,9 @@ const VotingPage = () => {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isVotingActive, setIsVotingActive] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
+  const [votingID, setVotingID] = useState(null);
 
-  // Poll the voting status every second if the buttons are not displayed
+  // Poll the voting status 500ms if the buttons are not displayed
   useEffect(() => {
     let pollVotingStatus;
     let localTimer;
@@ -23,6 +24,7 @@ const VotingPage = () => {
             if (timeRemaining <= 0) {
               setHasVoted(false); // Reset hasVoted if the previous voting has ended
             }
+            setVotingID(data.voting_id);
           }
           if (data.time_remaining > 0) {
             setTimeRemaining(data.time_remaining - 1); // Set time remaining only once (minus 1 second to prevent voting failures)
@@ -64,6 +66,7 @@ const VotingPage = () => {
       }
       // Hide buttons after voting
       setHasVoted(true);
+      localStorage.setItem('voting-id', votingID);
     } catch (error) {
       console.error('Error submitting vote:', error);
     }
@@ -77,7 +80,7 @@ const VotingPage = () => {
             <h2>ПЕРЕРВА У ГОЛОСУВАННІ</h2>
           </div>
         </div>
-      ) : isVotingActive && timeRemaining > 0 && !hasVoted ? (
+      ) : isVotingActive && timeRemaining > 0 && !hasVoted && localStorage.getItem('voting-id') !== votingID ? (
         <>
           <div className="buttons">
             <button className="vote-button green" onClick={() => handleVote('yes')}>ЗА</button>

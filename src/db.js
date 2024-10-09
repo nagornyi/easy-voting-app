@@ -87,9 +87,9 @@ export async function getRecessStatus(client) {
   };
 }
 
-// Set voting number
-export async function setVotingNumber(client, votingNumber) {
-  await client.hSet('voting_number', { voting_number: votingNumber });
+// Set voting number and unique ID
+export async function setVotingNumber(client, votingNumber, votingID) {
+  await client.hSet('voting_number', { voting_number: votingNumber, voting_id: votingID } );
 }
 
 // Get voting number
@@ -99,12 +99,14 @@ export async function getVotingNumber(client) {
   // Check if voting number is empty, meaning it's the first voting of the session
   if (Object.keys(votingNumber).length === 0) {
     return {
-      voting_number: 0 // Default value
+      voting_number: 0, // Default value
+      voting_id: "default"
     };
   }
 
   return {
-    voting_number: parseInt(votingNumber.voting_number, 10) || 0 // Convert voting_number to integer
+    voting_number: parseInt(votingNumber.voting_number, 10) || 0, // Convert voting_number to integer
+    voting_id: votingNumber.voting_id
   };
 }
 

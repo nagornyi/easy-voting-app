@@ -69,6 +69,12 @@ curl -X POST http://localhost:3000/api/startvote
 curl -X POST http://localhost:3000/api/startvote -H "Content-Type: application/json" -d '{"duration": 15}'
 ```
 
+### Cast a vote (yes, abstain, no)
+
+```sh
+curl -X POST http://localhost:3000/api/vote -H "Content-Type: application/json" -d '{"vote": "yes"}'
+```
+
 ### Get voting results
 
 ```sh
@@ -78,7 +84,11 @@ curl http://localhost:3000/api/getresult
 Example response:
 
 ```json
-{"yes": 51, "abstain": 3, "no": 10}
+{
+  "yes": 57,
+  "abstain": 49,
+  "no": 44
+}
 ```
 
 ### Get voting status
@@ -90,7 +100,12 @@ curl http://localhost:3000/api/votingstatus
 Example response:
 
 ```json
-{"is_active": true, "time_remaining": 5}
+{
+  "is_active": true,
+  "time_remaining": 5,
+  "voting_number": 3,
+  "voting_id": "zKPS9JGc"
+}
 ```
 
 ### Get all the information with one request
@@ -102,7 +117,17 @@ curl http://localhost:3000/api/status
 Example response:
 
 ```json
-{"is_active": false, "time_remaining": 0, "is_onrecess": false, "voting_number": 3, "results": {"yes": 0,"abstain": 0,"no": 1}}
+{
+  "is_active": false,
+  "time_remaining": 0,
+  "is_onrecess": false,
+  "voting_number": 3,
+  "results": {
+    "yes": 57,
+    "abstain": 49,
+    "no": 44
+  }
+}
 ```
 
 ### Reset all votes
@@ -111,12 +136,28 @@ Example response:
 curl -X POST http://localhost:3000/api/resetvotes
 ```
 
-### Set recess status (a break during the parliamentary session), this is used for displaying a message on /result page, false by default
+### Set adjournment status (a break in the parliamentary session)
+
+If you set this status to `true`, a special message will be displayed on the `/result` page, this status is false by default.
 
 ```sh
 curl -X POST http://localhost:3000/api/setrecess -H "Content-Type: application/json" -d '{"status": true}'
 
 curl -X POST http://localhost:3000/api/setrecess -H "Content-Type: application/json" -d '{"status": false}'
+```
+
+### Check if parliament is in recess
+
+```bash
+curl http://localhost:3000/api/isonrecess
+```
+
+Example response:
+
+```json
+{
+  "is_onrecess": false
+}
 ```
 
 ## Load testing
@@ -145,7 +186,7 @@ choco install k6
 Once k6 is installed, you can run the load test script with:
 
 ```sh
-VOTERS=100 HOSTNAME=https://rada.onrender.com k6 run test/voting-load-test.js
+VOTERS=100 HOSTNAME=https://yourapp.com k6 run test/voting-load-test.js
 ```
 
 The number of voters defaults to 10 if the VOTERS environment variable is not provided. The hostname defaults to `http://localhost:3000` if not provided.

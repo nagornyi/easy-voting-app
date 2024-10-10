@@ -27,7 +27,7 @@ export default function Result() {
   const [isOnRecess, setIsOnRecess] = useState(false);
   const [votingNumber, setVotingNumber] = useState(null);
 
-  // Poll voting status every second
+  // Poll voting status every 500ms
   useEffect(() => {
     const pollVotingStatus = setInterval(async () => {
       try {

@@ -21,12 +21,8 @@ const VotingPage = () => {
           const data = await response.json();
           if (data.is_active) { // If voting is active
             setIsVotingActive(true); // Set voting active status to true
-            if (timeRemaining <= 0) {
-              setHasVoted(false); // Reset hasVoted if the previous voting has ended
-            }
-            setVotingID(data.voting_id);
-          }
-          if (data.time_remaining > 0) {
+            setHasVoted(false); // Reset hasVoted if the previous voting has ended
+            setVotingID(data.voting_id); // Set new voting ID
             setTimeRemaining(data.time_remaining - 1); // Set time remaining only once (minus 1 second to prevent voting failures)
           }
         } catch (error) {

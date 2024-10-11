@@ -12,7 +12,7 @@ function Clock() {
     };
 
     updateClock(); // Initial call to display clock immediately
-    const intervalId = setInterval(updateClock, 1000 * 60); // Update clock every minute
+    const intervalId = setInterval(updateClock, 1000); // Update clock every second
 
     return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
@@ -21,7 +21,7 @@ function Clock() {
 }
 
 export default function Result() {
-  const [isVotingActive, setIsVotingActive] = useState(true);
+  const [isVotingActive, setIsVotingActive] = useState(false);
   const [results, setResults] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isOnRecess, setIsOnRecess] = useState(false);
@@ -29,47 +29,76 @@ export default function Result() {
 
   // Poll voting status every 500ms
   useEffect(() => {
-    const pollVotingStatus = setInterval(async () => {
-      try {
-        const res = await fetch('/api/status');
-        const data = await res.json();
-        setIsVotingActive(data.is_active);
-        setTimeRemaining(data.time_remaining);
+    let pollVotingStatus;
+    let pollLiveResults;
+    let localTimer;
 
-        if (!data.is_active) {
-          // Set result only when voting is inactive          
-          const resultData = await data.results;
-          setResults(resultData);
+    if (!isVotingActive) {
+      pollVotingStatus = setInterval(async () => {
+        try {
+          const res = await fetch('/api/status');
+          const data = await res.json();          
 
           // Set recess status when voting is inactive
           setIsOnRecess(data.is_onrecess);
 
+          // Set result when voting is inactive          
+          const resultData = await data.results;
+          setResults(resultData);
+
           // Set voting number when voting is inactive
           setVotingNumber(data.voting_number);
-        }
-      } catch (error) {
-        console.error('Error fetching voting status or result:', error);
-      }
-    }, 500);
 
-    return () => clearInterval(pollVotingStatus);
-  }, []);
+          if (data.is_active) {
+            setIsVotingActive(true); // Set voting active status to true when voting becomes active
+            setTimeRemaining(data.time_remaining - 1); // Set time remaining only once (minus 1 second to prevent voting failures)
+          }
+        } catch (error) {
+          console.error('Error fetching voting status or result:', error);
+        }
+      }, 500);
+    } else {
+      pollLiveResults = setInterval(async () => {
+        try {
+          const res = await fetch('/api/status');
+          const data = await res.json();
+
+          // Set result when voting is active          
+          const resultData = await data.results;
+          setResults(resultData);
+
+          // Set voting number when voting is active
+          setVotingNumber(data.voting_number);
+        } catch (error) {
+          console.error('Error fetching voting status or result:', error);
+        }
+      }, 500);
+    }
+
+    if (timeRemaining <= 0) {
+      // Voting has ended
+      setIsVotingActive(false)
+    }
+
+    // Start a local timer to countdown if voting is active
+    if (isVotingActive) {
+      localTimer = setInterval(() => {
+        setTimeRemaining(prev => (prev > 0 ? prev - 1 : 0));
+      }, 1000); // Local countdown every second
+    }
+
+    return () => {
+      clearInterval(pollVotingStatus);
+      clearInterval(pollLiveResults);
+      clearInterval(localTimer);
+    };
+  }, [isVotingActive, timeRemaining]);
 
   if (isOnRecess) {
     return (
       <div className="result-screen">
         <div className="resultheader">
           ПАРЛАМЕНТ НА КАНІКУЛАХ
-        </div>
-      </div>
-    );
-  }
-
-  if (isVotingActive && timeRemaining > 0) {
-    return (
-      <div className="result-screen">
-        <div className="resultheader">
-          ТРИВАЄ ГОЛОСУВАННЯ
         </div>
       </div>
     );
@@ -88,16 +117,25 @@ export default function Result() {
   if (results) {
     const { yes, no, abstain } = results;
     const total = yes + no + abstain;    
-    var decision = 'ВІДСУТНІСТЬ КВОРУМУ';
-    var decision_type = 'noquorum';
-    if (total > 0) {
-      if (yes > total / 2) {
+    var title;
+    var decision;
+    var decision_type;
+    if (!isVotingActive) {
+      title = 'ПІДСУМКИ ГОЛОСУВАННЯ';
+      if (total === 0) {
+        decision = 'ВІДСУТНІСТЬ КВОРУМУ';
+        decision_type = 'noquorum';
+      } else if (yes > total / 2) {
         decision = 'РІШЕННЯ ПРИЙНЯТО';
         decision_type = 'accepted';
       } else {
         decision = 'РІШЕННЯ НЕ ПРИЙНЯТО';
         decision_type = 'rejected';
-      }      
+      }
+    } else {
+      title = 'ТРИВАЄ ГОЛОСУВАННЯ';
+      decision = `ЗАВЕРШЕННЯ ЧЕРЕЗ: ${timeRemaining} СЕК`;
+      decision_type = 'activevoting';
     }
 
     return (
@@ -107,7 +145,7 @@ export default function Result() {
 
         {/* Voting Results */}
         <div className="resultheader">
-          ПІДСУМКИ ГОЛОСУВАННЯ&nbsp;&nbsp;&nbsp;&nbsp;<span className='votingnum'>№ {votingNumber}</span>
+          {title}&nbsp;&nbsp;&nbsp;&nbsp;<span className='votingnum'>№ {votingNumber}</span>
         </div>
 
         <div className="summary-wrapper">

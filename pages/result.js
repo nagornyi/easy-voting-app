@@ -134,7 +134,7 @@ export default function Result() {
       }
     } else {
       title = 'ТРИВАЄ ГОЛОСУВАННЯ';
-      decision = `ЗАВЕРШЕННЯ ЧЕРЕЗ: ${timeRemaining} СЕК`;
+      decision = `ДО ЗАВЕРШЕННЯ: ${timeRemaining} СЕК`;
       decision_type = 'activevoting';
     }
 

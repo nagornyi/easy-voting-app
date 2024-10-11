@@ -9,9 +9,12 @@ const saveVotingStatus = async (is_active, time_remaining) => {
   await setVotingStatus(db, is_active, time_remaining);
 };
 
-const startVote = async (timer_duration) => {
+const startVote = async (timer_duration) => {    
     votingActive = true;
-    timeRemaining = timer_duration;    
+    timeRemaining = timer_duration;
+    // Activate the voting
+    await saveVotingStatus(votingActive, timeRemaining);
+
     startTime = Date.now();
     
     // Clear previous timer if exists
@@ -26,6 +29,7 @@ const startVote = async (timer_duration) => {
             clearInterval(intervalId);
             votingActive = false;
             timeRemaining = 0;
+            // Deactivate the voting
             await saveVotingStatus(votingActive, timeRemaining);
         }
     }, 1000);

@@ -5,11 +5,11 @@ export default async function handler(req, res) {
     try {
       const db = await openDB();
       
-      // Reset voting number
-      await setVotingNumber(db, 0, "newsession");
-
       // Delete all votes
       await deleteAllVotes(db);
+
+      // Reset voting number
+      await setVotingNumber(db, 0, "newsession");      
 
       res.status(200).json({ message: 'New session of the parliament opened' });
     } catch (err) {

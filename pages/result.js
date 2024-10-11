@@ -42,7 +42,7 @@ export default function Result() {
           // Set recess status when voting is inactive
           setIsOnRecess(data.is_onrecess);
 
-          // Set result when voting is inactive          
+          // Set result when voting is inactive
           const resultData = await data.results;
           setResults(resultData);
 
@@ -50,8 +50,10 @@ export default function Result() {
           setVotingNumber(data.voting_number);
 
           if (data.is_active) {
-            setIsVotingActive(true); // Set voting active status to true when voting becomes active
-            setTimeRemaining(data.time_remaining - 1); // Set time remaining only once (minus 1 second to prevent voting failures)
+            // Set voting active status to true when voting becomes active
+            setIsVotingActive(true);
+            // Set time remaining only once
+            setTimeRemaining(data.time_remaining);
           }
         } catch (error) {
           console.error('Error fetching voting status or result:', error);

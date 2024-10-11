@@ -6,12 +6,12 @@ const VotingPage = () => {
   const [hasVoted, setHasVoted] = useState(false);
   const [votingID, setVotingID] = useState(null);
 
-  // Poll the voting status 500ms if the buttons are not displayed
+  // Poll the voting status every 500ms if voting is not active
   useEffect(() => {
     let pollVotingStatus;
     let localTimer;
 
-    if (!isVotingActive || hasVoted) {
+    if (!isVotingActive) {
       pollVotingStatus = setInterval(async () => {
         try {
           const response = await fetch('/api/votingstatus');
@@ -32,8 +32,9 @@ const VotingPage = () => {
     }
 
     if (timeRemaining <= 0) {
-      // Hide buttons after the voting has ended
+      // Hide buttons and resume polling after the voting has ended
       setHasVoted(true);
+      setIsVotingActive(false);
     }
 
     // Start a local timer to countdown if voting is active

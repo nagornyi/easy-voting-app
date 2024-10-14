@@ -110,6 +110,27 @@ export async function getVotingNumber(client) {
   };
 }
 
+// Set parliament information
+export async function setParliamentInfo(client, parliamentName) {
+  await client.hSet('parliament_info', { parliament_name: parliamentName });
+}
+
+// Get parliament information
+export async function getParliamentInfo(client) {
+  const info = await client.hGetAll('parliament_info');
+
+  // Check if info is empty
+  if (Object.keys(info).length === 0) {
+    return {
+      parliament_name: 'RADA' // Default value
+    };
+  }
+
+  return {    
+    parliament_name: info.parliament_name
+  };
+}
+
 export async function deleteAllVotes(client) {
   // Get all keys that match the "vote:*" pattern
   const keys = await client.keys('vote:*');

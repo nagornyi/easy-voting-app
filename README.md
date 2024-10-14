@@ -160,6 +160,12 @@ Example response:
 }
 ```
 
+### Set parliament information
+
+```sh
+curl -X POST http://localhost:3000/api/set-parliament-info -H "Content-Type: application/json" -d '{"parliament_name": "MARTIAN ASSEMBLY"}'
+```
+
 ## Load testing
 
 You need to install the k6 tool (https://k6.io/) to run the load tests.

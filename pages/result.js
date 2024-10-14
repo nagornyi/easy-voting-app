@@ -20,12 +20,36 @@ function Clock() {
   return <div className="clock">{time}</div>;
 }
 
+function Logo() {
+  const [parliamentName, setParliamentName] = useState('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/get-parliament-info');
+        if (!response.ok) {
+          throw new Error('Failed to fetch parliament info');
+        }
+        const data = await response.json();
+        setParliamentName(data.parliament_name); // Set custom name
+      } catch (error) {
+        console.error('Error fetching parliament info:', error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  return <div className="logo">{parliamentName}</div>;
+}
+
 export default function Result() {
   const [isVotingActive, setIsVotingActive] = useState(false);
   const [results, setResults] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isOnRecess, setIsOnRecess] = useState(false);
   const [votingNumber, setVotingNumber] = useState(null);
+  // This additional time is needed to prevent losing votes due to network latency
+  const VOTES_PROCESSING_PERIOD = 3;
 
   // Poll voting status every 500ms
   useEffect(() => {
@@ -53,7 +77,7 @@ export default function Result() {
             // Set voting active status to true when voting becomes active
             setIsVotingActive(true);
             // Set time remaining only once
-            setTimeRemaining(data.time_remaining);
+            setTimeRemaining(data.time_remaining + VOTES_PROCESSING_PERIOD);
           }
         } catch (error) {
           console.error('Error fetching voting status or result:', error);
@@ -134,16 +158,22 @@ export default function Result() {
         decision = 'РІШЕННЯ НЕ ПРИЙНЯТО';
         decision_type = 'rejected';
       }
-    } else {
+    } else if (timeRemaining > VOTES_PROCESSING_PERIOD) {
       title = 'ТРИВАЄ ГОЛОСУВАННЯ';
-      decision = `ДО ЗАВЕРШЕННЯ: ${timeRemaining} СЕК`;
+      decision = `ДО ЗАВЕРШЕННЯ: ${timeRemaining - VOTES_PROCESSING_PERIOD} СЕК`;
       decision_type = 'activevoting';
+    } else if (timeRemaining <= VOTES_PROCESSING_PERIOD && timeRemaining > 0) {
+      title = 'ОБРОБКА ГОЛОСІВ';
+      decision = `ДО ЗАВЕРШЕННЯ: ${timeRemaining} СЕК`;
+      decision_type = 'votesprocessing';
     }
 
     return (
       <div className="result-screen">
         {/* Clock in the upper-right corner */}
         <Clock />
+        {/* Logo in the lower-left corner */}
+        <Logo />
 
         {/* Voting Results */}
         <div className="resultheader">

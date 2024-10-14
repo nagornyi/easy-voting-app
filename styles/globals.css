@@ -125,6 +125,10 @@ body {
   color: orange;
 }
 
+.votesprocessing {
+  color: blue;
+}
+
 .votingnum {
   color: orange;
 }
@@ -133,6 +137,14 @@ body {
   position: absolute;
   top: 0.625rem;
   right: 1.25rem;
+  font-size: 2.5rem;
+  color: white;
+}
+
+.logo {
+  position: absolute;
+  bottom: 0.625rem;
+  left: 1.25rem;
   font-size: 2.5rem;
   color: white;
 }
@@ -154,6 +166,10 @@ body {
   }
 
   .clock {
+    font-size: 1.5rem;
+  }
+
+  .logo {
     font-size: 1.5rem;
   }
 }

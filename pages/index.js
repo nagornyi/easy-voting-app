@@ -33,7 +33,6 @@ const VotingPage = () => {
 
     if (timeRemaining <= 0) {
       // Hide buttons and resume polling after the voting has ended
-      setHasVoted(true);
       setIsVotingActive(false);
     }
 
@@ -88,6 +87,10 @@ const VotingPage = () => {
             ГОЛОСУВАННЯ ЗАВЕРШИТЬСЯ ЧЕРЕЗ: {timeRemaining} сек
           </div>
         </>
+      ) : hasVoted || localStorage.getItem('voting-id') === votingID ? (
+        <div className="results">
+          <h2>ВИ ПРОГОЛОСУВАЛИ</h2>
+        </div>
       ) : (
         <div className="results">
           <h2>ГОЛОСУВАННЯ ЗАВЕРШЕНО</h2>

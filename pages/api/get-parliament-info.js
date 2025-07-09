@@ -1,4 +1,4 @@
-import { openDB, getParliamentInfo } from '../../src/db';
+import { openDB, getParliamentInfo } from '@/src/db';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {

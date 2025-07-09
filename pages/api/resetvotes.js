@@ -1,4 +1,4 @@
-import { openDB, deleteAllVotes } from '../../src/db';
+import { openDB, deleteAllVotes } from '@/src/db';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {

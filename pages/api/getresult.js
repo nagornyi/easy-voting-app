@@ -1,21 +1,18 @@
-import { openDB, getVotes } from '../../src/db';
+import { openDB, getVotes, getVoteType } from '@/src/db';
+import { processVotes } from '@/src/utils';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     const db = await openDB();
-    const votes = await getVotes(db);    
-    
-    const results = {
-      yes: 0,
-      abstain: 0,
-      no: 0
-    };
 
-    votes.forEach((vote) => {
-      if (results[vote] !== undefined) {
-        results[vote] += 1; // Increment the count for the vote
-      }
-    });
+    // Get all votes from the database
+    const votes = await getVotes(db);
+
+    // Get the vote type to determine how to process votes
+    const { vote_type } = await getVoteType(db);
+
+    // Process votes based on the vote type
+    const results = await processVotes(votes, vote_type);
 
     res.status(200).json(results);
   } else {

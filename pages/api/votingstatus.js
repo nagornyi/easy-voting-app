@@ -1,4 +1,4 @@
-import { openDB, getVotingStatus, getVotingNumber } from '../../src/db';
+import { openDB, getVotingStatus, getVotingNumber } from '@/src/db';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {

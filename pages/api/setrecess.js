@@ -1,4 +1,4 @@
-import { openDB, setRecessStatus } from '../../src/db';
+import { openDB, setRecessStatus } from '@/src/db';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {

@@ -1,7 +1,8 @@
-import { openDB, getVotingStatus, storeVote } from '../../src/db';
+import { openDB, getVoteType, getVotingStatus, storeVote } from '@/src/db';
 
 export default async function handler(req, res) {
   const db = await openDB();
+  const { vote_type } = await getVoteType(db);
   const { is_active } = await getVotingStatus(db);
 
   if (!is_active) {
@@ -12,8 +13,11 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { vote } = req.body;
 
-    if (!['yes', 'abstain', 'no'].includes(vote)) {
+    // Validate vote based on vote type
+    if (vote_type == 'single-motion' && !['yes', 'abstain', 'no'].includes(vote)) {
       return res.status(400).json({ message: 'Invalid vote' });
+    } else if (vote_type == 'text-to-vote' && vote.length < 1) {
+      return res.status(400).json({ message: 'Vote cannot be empty' });
     }
 
     try {

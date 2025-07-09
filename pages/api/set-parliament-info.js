@@ -1,4 +1,4 @@
-import { openDB, setParliamentInfo } from '../../src/db';
+import { openDB, setParliamentInfo } from '@/src/db';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {

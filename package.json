@@ -1,6 +1,6 @@
 {
   "name": "easy-voting-app",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,9 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.2.13",
-    "react": "^18",
-    "react-dom": "^18",
-    "redis": "^4.7.0"
+    "next": "15.3.5",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "redis": "5.6.0"
   }
 }

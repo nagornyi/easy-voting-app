@@ -1,5 +1,5 @@
-import { openDB, deleteAllVotes, getVotingNumber, setVotingNumber } from '../../src/db';
-import { startVote } from '../../src/votingmanager';
+import { openDB, deleteAllVotes, getVotingNumber, setVotingNumber } from '@/src/db';
+import { startVote } from '@/src/votingmanager';
 const defaultTimerDuration = 10;
 
 export default async function handler(req, res) {

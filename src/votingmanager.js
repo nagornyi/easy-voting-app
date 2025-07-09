@@ -1,4 +1,4 @@
-import { openDB, setVotingStatus } from './db';
+import { openDB, setVotingStatus } from '@/src/db';
 let votingActive = false;
 let timeRemaining = 0;
 let startTime = null;

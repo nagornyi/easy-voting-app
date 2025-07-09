@@ -87,6 +87,25 @@ export async function getRecessStatus(client) {
   };
 }
 
+// Set vote type ("single-motion" or "text-to-vote")
+export async function setVoteType(client, voteType) {
+  await client.hSet('session_info', { vote_type: voteType } );
+}
+
+// Get vote type ("single-motion" or "text-to-vote")
+export async function getVoteType(client) {
+  const sessionInfo = await client.hGetAll('session_info');
+  // Check if session_info is empty, meaning vote_type is not set
+  if (Object.keys(sessionInfo).length === 0) {
+    return {
+      vote_type: 'single-motion' // Default value
+    };
+  }
+  return {
+    vote_type: sessionInfo.vote_type || 'single-motion' // Default to 'single-motion' if not set
+  };
+}
+
 // Set voting number and unique ID
 export async function setVotingNumber(client, votingNumber, votingID) {
   await client.hSet('voting_number', { voting_number: votingNumber, voting_id: votingID } );

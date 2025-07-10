@@ -53,8 +53,14 @@ In production you should replace `localhost:3000` with the production server hos
 
 ### Start new parliamentary session (resets the voting number)
 
+The default vote type is 'single-motion' (Yes/Abstain/No). You can also set a 'text-to-vote' type of vote that displays a retro mobile phone UI for an SMS voting simulator, where you can send a text code or number as your vote.
+
 ```sh
 curl -X POST http://localhost:3000/api/startsession
+
+curl -X POST http://localhost:3000/api/startsession -H "Content-Type: application/json" -d '{"vote_type": "single-motion"}'
+
+curl -X POST http://localhost:3000/api/startsession -H "Content-Type: application/json" -d '{"vote_type": "text-to-vote"}'
 ```
 
 ### Start new voting process with a 10 sec timer (this is the default duration)

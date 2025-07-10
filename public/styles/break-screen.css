@@ -1,0 +1,22 @@
+/***** break-screen.css: Styles for the break screen *****/
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.break-container {
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #009AEE;
+  color: white;
+  text-align: center;
+}
+.break-results h2 {
+  margin-left: 1.25rem;
+  margin-right: 1.25rem;
+}

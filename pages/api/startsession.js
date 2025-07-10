@@ -10,10 +10,10 @@ export default async function handler(req, res) {
 
       // Set vote type ("single-motion" or "text-to-vote")
       // default to "single-motion" if not provided
-      if (!req.body.vote_type || (req.body.vote_type !== 'single-motion' && req.body.vote_type !== 'text-to-vote')) {
-        req.body.vote_type = 'single-motion';
+      let vote_type = req.body.vote_type;
+      if (!vote_type || (vote_type !== 'single-motion' && vote_type !== 'text-to-vote')) {
+        vote_type = 'single-motion';
       }
-      const { vote_type } = req.body;      
       await setVoteType(db, vote_type);
 
       // Reset voting number

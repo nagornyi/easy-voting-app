@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     // Process votes based on the vote type
     const results = await processVotes(votes, vote_type);
 
-    res.status(200).json({ is_active, time_remaining, is_onrecess, voting_number, "results": results });
+    res.status(200).json({ is_active, time_remaining, is_onrecess, voting_number, vote_type, "results": results });
   } else {
     res.status(405).json({ message: 'Method not allowed' });
   }

@@ -1,68 +1,9 @@
+/* result-screen.css: Styles for result screen */
+
 body {
   margin: 0;
   padding: 0;
 }
-
-/* VOTING SCREEN */
-
-.container {
-  font-family: 'Arial', sans-serif;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #009AEE;
-  color: white;
-  text-align: center;
-}
-.buttons {
-  display: flex;
-  width: 100%;
-  max-width: 600px;
-  justify-content: space-around;
-  margin-bottom: 1.25rem;
-}
-.vote-button {
-  width: 30%;
-  padding: 1.25rem;
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-.green {
-  background-color: green;
-}
-.yellow {
-  background-color: #ffcc00;
-}
-.red {
-  background-color: red;
-}
-.timer {
-  font-size: 1.125rem;
-  margin-top: 2.5rem;          
-  margin-left: 1.25rem;
-  margin-right: 1.25rem;
-}
-.results h2 {
-  margin-left: 1.25rem;
-  margin-right: 1.25rem;
-}
-
-@media (max-width: 600px) {
-  .buttons {
-    flex-direction: column;
-    gap: 2.5rem;
-  }
-  .vote-button {
-    width: 100%;
-  }
-}
-
-/* RESULT SCREEN */
 
 .result-screen {
   display: flex;

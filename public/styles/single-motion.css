@@ -1,0 +1,175 @@
+/* single-motion.css: Styles for single motion mode */
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #009AEE;
+  color: white;
+  text-align: center;
+}
+.buttons {
+  display: flex;
+  width: 100%;
+  max-width: 600px;
+  justify-content: space-around;
+  margin-bottom: 1.25rem;
+}
+.vote-button {
+  width: 30%;
+  padding: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.green {
+  background-color: green;
+}
+.yellow {
+  background-color: #ffcc00;
+}
+.red {
+  background-color: red;
+}
+.timer {
+  font-size: 1.125rem;
+  margin-top: 2.5rem;          
+  margin-left: 1.25rem;
+  margin-right: 1.25rem;
+}
+.results h2 {
+  margin-left: 1.25rem;
+  margin-right: 1.25rem;
+}
+
+@media (max-width: 600px) {
+  .buttons {
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .vote-button {
+    width: 100%;
+  }
+}
+
+/* RESULT SCREEN */
+
+.result-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #000000f5;
+  color: #F5F5F5;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+}
+
+.resultheader {
+  font-size: 4rem;
+  margin: 0.325rem; /* Reduced from 1.25rem to 0.325rem for the vertical gap */
+}
+
+.summary-wrapper {
+  display: flex;
+  justify-content: center; /* Centers the summary block */
+  width: 100%; /* Adjust this as needed */
+}
+
+.summary {
+  display: flex;
+  gap: 10rem; /* Fixed space between left and right columns */
+  font-size: 4rem;
+  margin-bottom: 0.325rem; /* vertical gap */
+}
+
+.column {
+  text-align: right;
+  flex: 1;
+}
+
+.column p {
+  margin: 0.325rem 0; /* vertical gap between each vote row */
+}
+
+.decision {
+  font-size: 4rem;
+  margin: 1.25rem;
+}
+
+/* Color classes */
+.accepted, .yesvotes {
+  color: green;
+}
+
+.rejected, .novotes {
+  color: red;
+}
+
+.noquorum, .abstainvotes {
+  color: yellow;
+}
+
+.activevoting {
+  color: orange;
+}
+
+.votesprocessing {
+  color: blue;
+}
+
+.votingnum {
+  color: orange;
+}
+
+.clock {
+  position: absolute;
+  top: 0.625rem;
+  right: 1.25rem;
+  font-size: 2.5rem;
+  color: white;
+}
+
+.logo {
+  position: absolute;
+  bottom: 0.625rem;
+  left: 1.25rem;
+  font-size: 2.5rem;
+  color: white;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 600px) {
+  .summary {    
+    font-size: 1.5rem;
+    gap: 3rem;
+    width: 90%;    
+  }
+
+  .resultheader {
+    font-size: 1.75rem;
+  }
+
+  .decision {
+    font-size: 1.75rem;
+  }
+
+  .clock {
+    font-size: 1.5rem;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+  }
+}

@@ -11,28 +11,35 @@ export const options = {
       executor: 'constant-vus',
       vus: VOTERS,
       duration: '30s',
-      startTime: '0s',      
+      startTime: '0s',
       exec: 'polling',  // Specify the function to run
+    },
+    startSession: {
+      executor: 'shared-iterations',
+      vus: 1,
+      iterations: 1,
+      startTime: '30s',
+      exec: 'startSession',  // Specify the function to run
     },
     startVote: {
       executor: 'shared-iterations',
       vus: 1,
       iterations: 1,
-      startTime: '30s',      
+      startTime: '31s',
       exec: 'startVote',  // Specify the function to run
     },
     voting: {
       executor: 'constant-vus',
       vus: VOTERS,
       duration: '10s',
-      startTime: '31s',      
+      startTime: '32s',
       exec: 'voting',  // Specify the function to run
     },
     getResult: {
       executor: 'shared-iterations',
       vus: 1,
       iterations: 1,
-      startTime: '41s',      
+      startTime: '42s',
       exec: 'getResult',  // Specify the function to run
     },
   },
@@ -42,6 +49,14 @@ export function polling() {
   const res = http.get(`${HOSTNAME}/api/votingstatus`);
   check(res, { 'GET /api/votingstatus status is 200': (r) => r.status === 200 });
   sleep(0.5);
+}
+
+export function startSession() {
+  const vote_type = "single-motion";
+  const res = http.post(`${HOSTNAME}/api/startsession`, JSON.stringify({ vote_type }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  check(res, { 'POST /api/startsession status is 200': (r) => r.status === 200 });  
 }
 
 export function startVote() {

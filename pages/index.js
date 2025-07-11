@@ -9,7 +9,7 @@
  * at https://codepen.io/manz/pen/zYwMVxN.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const VotingPage = () => {
   const [timeRemaining, setTimeRemaining] = useState(null);
@@ -18,6 +18,19 @@ const VotingPage = () => {
   const [votingID, setVotingID] = useState(null);
   const [voteType, setVoteType] = useState(null);
   const [textVote, setTextVote] = useState('');
+  const inputRef = useRef(null);
+
+  // Automatically focus the input when voting starts and is active
+  useEffect(() => {
+    if (
+      voteType === 'text-to-vote' &&
+      isVotingActive &&
+      !hasVoted &&
+      inputRef.current
+    ) {
+      inputRef.current.focus();
+    }
+  }, [voteType, isVotingActive, hasVoted]);
 
   // Poll the voting status every 500ms if voting is not active
   useEffect(() => {
@@ -152,6 +165,21 @@ const VotingPage = () => {
     }
   };
 
+  const keyMap = [
+    { digit: '1', text: 'o_o' },
+    { digit: '2', text: 'abc' },
+    { digit: '3', text: 'def' },
+    { digit: '4', text: 'ghi' },
+    { digit: '5', text: 'jkl' },
+    { digit: '6', text: 'mno' },
+    { digit: '7', text: 'pqrs' },
+    { digit: '8', text: 'tuv' },
+    { digit: '9', text: 'wxyz' },
+    { digit: '*', text: '+' },
+    { digit: '0', text: '[' },
+    { digit: '#', text: '' }
+  ];
+
   return (
     <div className={
       timeRemaining === null
@@ -194,23 +222,42 @@ const VotingPage = () => {
                     <div className="logo">NOKIA</div>
                     <div className="screen-container">
                       <input
+                        ref={inputRef}
                         type="text"
                         value={textVote}
                         onChange={e => {
                           if (e.target.value.length <= 5) setTextVote(e.target.value);
                         }}
-                        placeholder="CODE"
                         className="text-vote-input nokia-screen-text"
                         disabled={hasVoted}
                         maxLength={5}
                       />
                     </div>
                     <div className="bottom-oval">
-                      <div className="big button top"></div>
+                      <div className="big button top"
+                        onClick={() => handleVote(textVote)}
+                        style={{
+                          cursor: hasVoted || !textVote.trim() ? 'default' : 'pointer'
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        aria-label="Send code"
+                      ></div>
                     </div>
                   </div>
                   <div className="bottom-buttons">
-                    <div className="big button left">
+                    <div
+                      className="big button left"
+                      onClick={() => {
+                        if (!hasVoted && textVote.length > 0) {
+                          setTextVote(textVote.slice(0, -1));
+                        }
+                      }}
+                      style={{ cursor: !hasVoted && textVote.length > 0 ? 'pointer' : 'default' }}
+                      tabIndex={0}
+                      role="button"
+                      aria-label="Erase last character"
+                    >
                       <span>C</span>
                     </div>
                     <div className="big button right">
@@ -219,78 +266,30 @@ const VotingPage = () => {
                     </div>
                   </div>
                   <div className="keyboard">
-                    <div className="button-key-container">
-                      <div className="button-key left">
-                        <span className="special">1</span>
-                        <span className="minitext compact">o_o</span>
+                    {keyMap.map((key, idx) => (
+                      <div
+                        className={`button-key-container${idx % 3 === 2 ? ' invert' : ''}`}
+                        key={key.digit}
+                        onClick={() => {
+                          // Only allow 0-9, *, # as input, and max 5 chars
+                          if (
+                            !hasVoted &&
+                            textVote.length < 5 &&
+                            (/[0-9*#]/.test(key.digit))
+                          ) {
+                            setTextVote(textVote + key.digit);
+                          }
+                        }}
+                        style={{ cursor: !hasVoted && textVote.length < 5 && /[0-9*#]/.test(key.digit) ? 'pointer' : 'default' }}
+                      >
+                        <div className={`button-key ${idx % 3 === 0 ? 'left' : idx % 3 === 1 ? 'middle' : 'right'}`}>
+                          <span className="special">{key.digit}</span>
+                          <span className={`minitext${key.digit === '1' ? ' compact' : ''}${key.digit === '0' ? ' rotate' : ''}${key.digit === '#' ? ' home' : ''}`}>
+                            {key.text}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="button-key-container">
-                      <div className="button-key middle">
-                        <span className="special">2</span>
-                        <span className="minitext">abc</span>
-                      </div>
-                    </div>
-                    <div className="button-key-container invert">
-                      <div className="button-key right">
-                        <span className="special">3</span>
-                        <span className="minitext">def</span>
-                      </div>
-                    </div>
-                    <div className="button-key-container">
-                      <div className="button-key left">
-                        <span className="special">4</span>
-                        <span className="minitext">ghi</span>
-                      </div>
-                    </div>
-                    <div className="button-key-container">
-                      <div className="button-key middle">
-                        <span className="special">5</span>
-                        <span className="minitext">jkl</span>
-                      </div>
-                    </div>
-                    <div className="button-key-container invert">
-                      <div className="button-key right">
-                        <span className="special">6</span>
-                        <span className="minitext">mno</span>
-                      </div>
-                    </div>
-                    <div className="button-key-container">
-                      <div className="button-key left">
-                        <span className="special">7</span>
-                        <span className="minitext">pqrs</span>
-                      </div>
-                    </div>
-                    <div className="button-key-container">
-                      <div className="button-key middle">
-                        <span className="special">8</span>
-                        <span className="minitext">tuv</span>
-                      </div>
-                    </div>
-                    <div className="button-key-container invert">
-                      <div className="button-key right">
-                        <span className="special">9</span>
-                        <span className="minitext">wxyz</span>
-                      </div>
-                    </div>
-                    <div className="button-key-container">
-                      <div className="button-key left">
-                        <span className="special">*</span>
-                        <span className="minitext">+</span>
-                      </div>
-                    </div>
-                    <div className="button-key-container">
-                      <div className="button-key middle">
-                        <span className="special">0</span>
-                        <span className="minitext rotate">[</span>
-                      </div>
-                    </div>
-                    <div className="button-key-container invert">
-                      <div className="button-key right">
-                        <span className="special">#</span>
-                        <span className="minitext home"></span>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
                 <div className="down">

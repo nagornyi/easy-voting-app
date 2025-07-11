@@ -69,16 +69,24 @@ curl -X POST http://localhost:3000/api/startsession -H "Content-Type: applicatio
 curl -X POST http://localhost:3000/api/startvote
 ```
 
-### Start new voting process with a 15 sec timer
+### Start new voting process with a 20 sec timer
 
 ```sh
-curl -X POST http://localhost:3000/api/startvote -H "Content-Type: application/json" -d '{"duration": 15}'
+curl -X POST http://localhost:3000/api/startvote -H "Content-Type: application/json" -d '{"duration": 20}'
 ```
 
 ### Cast a vote (yes, abstain, no)
 
+When the `vote_type` is `single-motion`, you can only cast "yes", "abstain" or "no" vote.
+
 ```sh
 curl -X POST http://localhost:3000/api/vote -H "Content-Type: application/json" -d '{"vote": "yes"}'
+```
+
+When the `vote_type` is `text-to-vote`, you can cast any text vote.
+
+```sh
+curl -X POST http://localhost:3000/api/vote -H "Content-Type: application/json" -d '{"vote": "SLAVAUKRAINI"}'
 ```
 
 ### Get voting results
@@ -87,13 +95,24 @@ curl -X POST http://localhost:3000/api/vote -H "Content-Type: application/json" 
 curl http://localhost:3000/api/getresult
 ```
 
-Example response:
+Example response when the `vote_type` is `single-motion`:
 
 ```json
 {
   "yes": 57,
   "abstain": 49,
   "no": 44
+}
+```
+
+Example response when the `vote_type` is `text-to-vote`:
+
+```json
+{
+  "ABCD2025": 10,
+  "QWERTY": 34,
+  "MARIA": 5,
+  "HANNA": 21
 }
 ```
 
@@ -120,7 +139,7 @@ Example response:
 curl http://localhost:3000/api/status
 ```
 
-Example response:
+Example response when the `vote_type` is `single-motion`:
 
 ```json
 {
@@ -128,10 +147,28 @@ Example response:
   "time_remaining": 0,
   "is_onrecess": false,
   "voting_number": 3,
+  "vote_type": "single-motion",
   "results": {
     "yes": 57,
     "abstain": 49,
     "no": 44
+  }
+}
+
+Example response when the `vote_type` is `text-to-vote`:
+
+```json
+{
+  "is_active": false,
+  "time_remaining": 0,
+  "is_onrecess": false,
+  "voting_number": 3,
+  "vote_type": "text-to-vote",
+  "results": {
+    "ABCD2025": 10,
+    "QWERTY": 34,
+    "MARIA": 5,
+    "HANNA": 21
   }
 }
 ```
@@ -195,10 +232,18 @@ On Windows (via Chocolatey):
 choco install k6
 ```
 
-Once k6 is installed, you can run the load test script with:
+Once k6 is installed, you can run the load test script from command line.
+
+Load test for `single-motion` vote type:
 
 ```sh
-VOTERS=100 HOSTNAME=https://yourapp.com k6 run test/voting-load-test.js
+VOTERS=100 HOSTNAME=https://yourapp.com k6 run test/single-motion-load-test.js
+```
+
+Load test for `text-to-vote` vote type:
+
+```sh
+VOTERS=100 HOSTNAME=https://yourapp.com k6 run test/text-to-vote-load-test.js
 ```
 
 The number of voters defaults to 10 if the VOTERS environment variable is not provided. The hostname defaults to `http://localhost:3000` if not provided.
@@ -211,8 +256,10 @@ The number of voters defaults to 10 if the VOTERS environment variable is not pr
 
 **Stage 1:** Each user polls `/api/votingstatus` every 500ms for 30 seconds.
 
-**Stage 2:** A single admin user sends a POST request to `/api/startvote` to start voting.
+**Stage 2:** A single admin user sends a POST request to `/api/startsession` to start a new session with specified vote type (`single-motion` or `text-to-vote`).
 
-**Stage 3:** Each user sends a random vote to `/api/vote` and continues polling `/api/votingstatus` until the voting period ends (10 seconds).
+**Stage 3:** A single admin user sends a POST request to `/api/startvote` to start voting.
 
-**Stage 4:** A single admin user sends a GET request to `/api/getresult` and checks that the total votes equal the number of voters.
+**Stage 4:** Each user sends a random vote to `/api/vote` and continues polling `/api/votingstatus` until the voting period ends (10 seconds).
+
+**Stage 5:** A single admin user sends a GET request to `/api/getresult` and checks that the total votes equal the number of voters.

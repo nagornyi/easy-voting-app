@@ -154,6 +154,7 @@ Example response when the `vote_type` is `single-motion`:
     "no": 44
   }
 }
+```
 
 Example response when the `vote_type` is `text-to-vote`:
 

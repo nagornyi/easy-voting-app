@@ -20,18 +20,6 @@ const VotingPage = () => {
   const [textVote, setTextVote] = useState('');
   const inputRef = useRef(null);
 
-  // Automatically focus the input when voting starts and is active
-  useEffect(() => {
-    if (
-      voteType === 'text-to-vote' &&
-      isVotingActive &&
-      !hasVoted &&
-      inputRef.current
-    ) {
-      inputRef.current.focus();
-    }
-  }, [voteType, isVotingActive, hasVoted]);
-
   // Poll the voting status every 500ms if voting is not active
   useEffect(() => {
     let pollVotingStatus;
@@ -220,7 +208,7 @@ const VotingPage = () => {
                       <div className="hole"></div>
                     </div>
                     <div className="logo">NOKIA</div>
-                    <div className="screen-container">
+                    <div className={`screen-container${isVotingActive && voteType === 'text-to-vote' && !hasVoted ? ' blinking-frame' : ''}`}>
                       <input
                         ref={inputRef}
                         type="text"

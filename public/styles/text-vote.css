@@ -91,6 +91,15 @@ body {
   100% { filter: drop-shadow(0 0 15px cyan); }
 }
 
+@keyframes blink-frame {
+  0%, 100% {
+    box-shadow: 0 0 0 3px #2e4434, 0 0 12px 3px #b6e3b6;
+  }
+  50% {
+    box-shadow: 0 0 0 3px #b6e3b6, 0 0 24px 6px #2e4434;
+  }
+}
+
 .nokia3310 {
   width: 170px;
   height: 360px;
@@ -512,4 +521,9 @@ button {
     bottom: 8px;
     max-width: 95vw;
   }
+}
+
+.blinking-frame {
+  animation: blink-frame 1.6s infinite;
+  border-radius: 8px;
 }

@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       // Reset voting number and optionally store codes_to_names
       await setVotingInfo(db, 0, "newsession", codes_to_names);
 
-      res.status(200).json({ message: `New session of the parliament opened with ${vote_type} vote type` });
+      res.status(200).json({ message: `New session of the parliament opened with '${vote_type}' vote type` });
     } catch (err) {
       res.status(500).json({ message: 'Failed to open a new session of the parliament' });
     }

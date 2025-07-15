@@ -176,6 +176,12 @@ const VotingPage = () => {
         ? 'text-vote-container'
         : 'container'
     }>
+      {/* Banner at the top */}
+      {voteType === 'text-to-vote' && isVotingActive && !hasVoted && (
+        <div className="text-vote-banner">
+          Для введення коду ви можете використовувати кнопки на зображенні телефона
+        </div>
+      )}
       {timeRemaining === null ? (
         <div className="break-container">
           <div className="break-results">

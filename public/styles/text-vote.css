@@ -523,6 +523,27 @@ button {
   }
 }
 
+.text-vote-banner {
+  font-family: 'Nokia Cellphone FC', monospace;
+  font-size: 8px;
+  color: #2e4434;
+  background: #b6e3b6;
+  border-radius: 6px;
+  padding: 6px 18px;
+  box-shadow: 0 2px 6px #0002;
+  width: fit-content;
+  letter-spacing: 2px;
+  border: 1.5px solid #2e4434;
+  text-align: center;
+  position: fixed;
+  left: 50%;
+  top: 8px;
+  transform: translateX(-50%);
+  z-index: 100;
+  max-width: 90vw;
+  white-space: pre-line;
+}
+
 .blinking-frame {
   animation: blink-frame 1.6s infinite;
   border-radius: 8px;

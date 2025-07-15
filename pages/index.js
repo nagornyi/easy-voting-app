@@ -290,7 +290,7 @@ const VotingPage = () => {
                   <button
                     onClick={() => handleVote(textVote)}
                     disabled={hasVoted || !textVote.trim()}
-                  >VOTE</button>
+                  >ГОЛОСУВАТИ</button>
                 </div>
               </div>
             </div>

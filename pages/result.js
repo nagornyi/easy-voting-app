@@ -50,7 +50,7 @@ function Clock() {
   return <div className="clock">{time}</div>;
 }
 
-function Logo() {
+function Logo({type}) {
   const [parliamentName, setParliamentName] = useState('');
 
   useEffect(() => {
@@ -64,12 +64,13 @@ function Logo() {
         setParliamentName(data.parliament_name); // Set custom name
       } catch (error) {
         console.error('Error fetching parliament info:', error);
+        setParliamentName('Верховна Рада України'); // Fallback name
       }
     };
     fetchData();
   }, []);
 
-  return <div className="logo">{parliamentName}</div>;
+  return <div className={`${type}`}>{parliamentName}</div>;
 }
 
 export default function Result() {
@@ -161,9 +162,7 @@ export default function Result() {
         </div>
       ) : votingNumber === 0 ? (
         <div className="result-screen">
-          <div className="resultheader">
-            НОВА СЕСІЯ ВЕРХОВНОЇ РАДИ
-          </div>
+          <Logo type="resultheader" />
         </div>
       ) : results ? (
         (() => {
@@ -233,7 +232,7 @@ export default function Result() {
           return (
             <div className="result-screen">
               <Clock />
-              <Logo />
+              <Logo type="logo" />
               <div className="resultheader">
                 {title}&nbsp;&nbsp;&nbsp;&nbsp;<span className='votingnum'>№ {votingNumber}</span>
               </div>

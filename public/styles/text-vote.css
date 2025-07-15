@@ -69,6 +69,10 @@ body {
   pointer-events: auto;
 }
 
+.down button {
+  font-family: var(--nokia-logo-font);
+}
+
 @media (max-width: 600px) {
   .down {
     margin-top: 18px; /* Slightly less space on mobile */
@@ -494,7 +498,7 @@ button {
 }
 
 .text-vote-timer {
-  font-family: 'Nokia Cellphone FC', monospace;
+  font-family: var(--nokia-logo-font);
   font-size: 18px;
   color: #2e4434;
   background: #b6e3b6;
@@ -524,7 +528,7 @@ button {
 }
 
 .text-vote-banner {
-  font-family: 'Nokia Cellphone FC', monospace;
+  font-family: monospace;
   font-size: 8px;
   color: #2e4434;
   background: #b6e3b6;

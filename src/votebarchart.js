@@ -26,7 +26,8 @@ function getBarColors(count) {
 export default function VoteBarChart({ data }) {
   const barColors = getBarColors(data.length);
   const chartData = {
-    labels: data.map(([code]) => code),
+    // Capitalize candidate names (codes) in all caps
+    labels: data.map(([code]) => String(code).toUpperCase()),
     datasets: [
       {
         label: 'Кількість голосів',
@@ -45,7 +46,7 @@ export default function VoteBarChart({ data }) {
     },
     scales: {
       x: {
-        title: { display: true, color: '#F5F5F5', text: 'Код учасника', font: { size: 18, weight: 'bold'} },
+        title: { display: true, color: '#F5F5F5', text: 'Кандидати', font: { size: 18, weight: 'bold'} },
         grid: { display: true, color: '#787878' },
         ticks: { color: 'orange', font: { size: 16, weight: 'bold' } },
       },

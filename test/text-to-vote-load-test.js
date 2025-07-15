@@ -53,8 +53,14 @@ export function polling() {
 
 export function startSession() {
   const vote_type = "text-to-vote";
-  const res = http.post(`${HOSTNAME}/api/startsession`, JSON.stringify({ vote_type }), {
-    headers: { 'Content-Type': 'application/json' },
+  const codes_to_names = [
+    { code: 'JS', name: 'Jane Smith' },
+    { code: 'AC', name: 'Alice Cooper' },
+    { code: 'HF', name: 'Hanna Ford' }
+  ];
+  const res = http.post(`${HOSTNAME}/api/startsession`, JSON.stringify(
+    { vote_type, codes_to_names }),
+    { headers: { 'Content-Type': 'application/json' },
   });
   check(res, { 'POST /api/startsession status is 200': (r) => r.status === 200 });  
 }
@@ -74,7 +80,7 @@ export function voting() {
   while (new Date().getTime() - startTime < 10000) { // Run for 10 seconds
     if (!hasVoted && (new Date().getTime() - startTime) > voteTime * 1000) {
       // Time to vote
-      const vote = randomItem(['Alice', 'Fiona', 'Hanna']);
+      const vote = randomItem(['JS', 'AC', 'HF']);
       const voteRes = http.post(`${HOSTNAME}/api/vote`, JSON.stringify({ vote }), {
         headers: { 'Content-Type': 'application/json' },
       });

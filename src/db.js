@@ -26,8 +26,28 @@ export async function openDB() {
 
 // Store a vote
 export async function storeVote(client, vote) {
+  // Get vote type
+  const { vote_type } = await getVoteType(client);
+
+  // Always convert vote to lower-case
+  let voteToStore = typeof vote === 'string' ? vote.toLowerCase() : vote;
+
+  if (vote_type === 'text-to-vote') {
+    // Try to get codes_to_names mapping
+    const codesToNames = await getCodesToNames(client);
+    if (Array.isArray(codesToNames) && codesToNames.length > 0) {
+      // Case-insensitive match
+      const found = codesToNames.find(
+        item => typeof item.code === 'string' && item.code.toLowerCase() === voteToStore
+      );
+      if (found && found.name) {
+        voteToStore = found.name;
+      }
+    }
+  }
+
   const id = await client.incr('vote_id'); // Increment the vote ID
-  await client.hSet(`vote:${id}`, { id, vote });
+  await client.hSet(`vote:${id}`, { id, vote: voteToStore });
 }
 
 // Get all votes
@@ -107,16 +127,20 @@ export async function getVoteType(client) {
 }
 
 // Set voting number and unique ID
-export async function setVotingNumber(client, votingNumber, votingID) {
-  await client.hSet('voting_number', { voting_number: votingNumber, voting_id: votingID } );
+export async function setVotingInfo(client, votingNumber, votingID, codesToNames) {
+  const data = { voting_number: votingNumber, voting_id: votingID };
+  if (codesToNames) {
+    data.codes_to_names = JSON.stringify(codesToNames);
+  }
+  await client.hSet('voting_info', data);
 }
 
 // Get voting number
 export async function getVotingNumber(client) {
-  const votingNumber = await client.hGetAll('voting_number');
+  const votingInfo = await client.hGetAll('voting_info');
 
   // Check if voting number is empty, meaning it's the first voting of the session
-  if (Object.keys(votingNumber).length === 0) {
+  if (Object.keys(votingInfo).length === 0) {
     return {
       voting_number: 0, // Default value
       voting_id: "default"
@@ -124,8 +148,8 @@ export async function getVotingNumber(client) {
   }
 
   return {
-    voting_number: parseInt(votingNumber.voting_number, 10) || 0, // Convert voting_number to integer
-    voting_id: votingNumber.voting_id
+    voting_number: parseInt(votingInfo.voting_number, 10) || 0, // Convert voting_number to integer
+    voting_id: votingInfo.voting_id
   };
 }
 
@@ -150,6 +174,25 @@ export async function getParliamentInfo(client) {
   };
 }
 
+// Add this function to set codes_to_names in voting_info
+export async function setCodesToNames(client, codesToNames) {
+  // Store as a JSON string in Redis
+  await client.hSet('voting_info', { codes_to_names: JSON.stringify(codesToNames) });
+}
+
+// Add this function to get codes_to_names from voting_info
+export async function getCodesToNames(client) {
+  const votingInfo = await client.hGetAll('voting_info');
+  if (votingInfo.codes_to_names) {
+    try {
+      return JSON.parse(votingInfo.codes_to_names);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 export async function deleteAllVotes(client) {
   // Get all keys that match the "vote:*" pattern
   const keys = await client.keys('vote:*');
@@ -161,4 +204,9 @@ export async function deleteAllVotes(client) {
   } else {
     console.log('No votes to delete.');
   }
+}
+
+// Utility function to delete codes_to_names from voting_info
+export async function deleteCodesToNames(client) {
+  await client.hDel('voting_info', 'codes_to_names');
 }

@@ -53,7 +53,7 @@ In production you should replace `localhost:3000` with the production server hos
 
 ### Start new parliamentary session (resets the voting number)
 
-The default vote type is 'single-motion' (Yes/Abstain/No). You can also set a 'text-to-vote' type of vote that displays a retro mobile phone UI for an SMS voting simulator, where you can send a text code or number as your vote.
+The default vote type is `single-motion` (yes/abstain/no). You can also set a `text-to-vote` type of vote that displays a retro mobile phone UI for an SMS voting simulator, where you can send a text code or number as your vote. `codes_to_names` optional parameter is only used for `text-to-vote` type of vote, it replaces vote codes with human-readable names. All codes are case-insensitive. `codes_to_names` array is deleted from the database every time we call `startsession` API route.
 
 ```sh
 curl -X POST http://localhost:3000/api/startsession
@@ -61,6 +61,16 @@ curl -X POST http://localhost:3000/api/startsession
 curl -X POST http://localhost:3000/api/startsession -H "Content-Type: application/json" -d '{"vote_type": "single-motion"}'
 
 curl -X POST http://localhost:3000/api/startsession -H "Content-Type: application/json" -d '{"vote_type": "text-to-vote"}'
+
+curl -X POST http://localhost:3000/api/startsession \
+  -H "Content-Type: application/json" \
+  -d '{
+    "vote_type": "text-to-vote",
+    "codes_to_names": [
+      { "code": "JD", "name": "John Doe" },
+      { "code": "JS", "name": "Jane Smith" }
+    ]
+  }'
 ```
 
 ### Start new voting process with a 10 sec timer (this is the default duration)
@@ -73,6 +83,22 @@ curl -X POST http://localhost:3000/api/startvote
 
 ```sh
 curl -X POST http://localhost:3000/api/startvote -H "Content-Type: application/json" -d '{"duration": 20}'
+```
+
+### Start new voting process with a 20 sec timer and 'codes_to_names' parameter
+
+`codes_to_names` optional parameter is only used for `text-to-vote` type of vote, it replaces vote codes with human-readable names. It can be set in `startsession` route as well. All codes are case-insensitive. `codes_to_names` array is updated (not deleted) in the database every time we call `startvote` API route. This way we can add new matches to the list of existing ones, and also override the existing matches to match different names, when we want to do it. It remains the same when we this parameter is not provided.
+
+```sh
+curl -X POST http://localhost:3000/api/startvote \
+  -H "Content-Type: application/json" \
+  -d '{
+    "duration": 20,
+    "codes_to_names": [
+      { "code": "JD", "name": "Jack Downey" },
+      { "code": "JS", "name": "Jane Smith" }
+    ]
+  }'
 ```
 
 ### Cast a vote (yes, abstain, no)
@@ -204,7 +230,7 @@ Example response:
 }
 ```
 
-### Set parliament information
+### Set parliament name
 
 ```sh
 curl -X POST http://localhost:3000/api/set-parliament-info -H "Content-Type: application/json" -d '{"parliament_name": "MARTIAN ASSEMBLY"}'

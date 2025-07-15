@@ -1,4 +1,4 @@
-import { openDB, deleteAllVotes, getVotingNumber, setVotingNumber } from '@/src/db';
+import { openDB, deleteAllVotes, getVotingNumber, setVotingInfo } from '@/src/db';
 import { startVote } from '@/src/votingmanager';
 const defaultTimerDuration = 10;
 
@@ -19,8 +19,8 @@ export default async function handler(req, res) {
     try {
       const db = await openDB();            
 
-      // Get timer duration from request body or set default duration
-      const { duration } = req.body;
+      // Get timer duration and codes_to_names from request body
+      const { duration, codes_to_names } = req.body;
       const timerDuration = duration ? parseInt(duration) : defaultTimerDuration;
 
       // Get last voting number and increment it
@@ -32,8 +32,8 @@ export default async function handler(req, res) {
 
       // Delete all votes
       await deleteAllVotes(db);      
-      // Save new voting number
-      await setVotingNumber(db, votingNumber, votingID);      
+      // Save new voting number and optional codes_to_names
+      await setVotingInfo(db, votingNumber, votingID, codes_to_names);      
       await startVote(timerDuration); // Start the voting and timer
 
       res.status(200).json({ message: 'Voting started' });

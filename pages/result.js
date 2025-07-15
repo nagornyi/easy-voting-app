@@ -194,7 +194,7 @@ export default function Result() {
               decision = `ДО ЗАВЕРШЕННЯ: ${timeRemaining - VOTES_PROCESSING_PERIOD} СЕК`;
               decision_type = 'activevoting';
             } else if (timeRemaining <= VOTES_PROCESSING_PERIOD && timeRemaining > 0) {
-              title = 'ОБРОБКА ГОЛОСІВ';
+              title = 'ПІДРАХУНОК ГОЛОСІВ';
               decision = `ДО ЗАВЕРШЕННЯ: ${timeRemaining} СЕК`;
               decision_type = 'votesprocessing';
             }
@@ -220,7 +220,7 @@ export default function Result() {
               decision = `ДО ЗАВЕРШЕННЯ: ${timeRemaining - VOTES_PROCESSING_PERIOD} СЕК`;
               decision_type = 'activevoting';
             } else if (timeRemaining <= VOTES_PROCESSING_PERIOD && timeRemaining > 0) {
-              title = 'ОБРОБКА ГОЛОСІВ';
+              title = 'ПІДРАХУНОК ГОЛОСІВ';
               decision = `ДО ЗАВЕРШЕННЯ: ${timeRemaining} СЕК`;
               decision_type = 'votesprocessing';
             }

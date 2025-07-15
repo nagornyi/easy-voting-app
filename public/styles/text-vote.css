@@ -409,7 +409,7 @@ body {
           color: #111;
 
           &.special {
-            font-weight: bolder;
+            font-weight: lighter;
             font-size: 10px;
             color: #000;
           }

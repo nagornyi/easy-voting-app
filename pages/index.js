@@ -51,6 +51,10 @@ const VotingPage = () => {
               if (voteTypeRes.ok) {
                 const voteTypeData = await voteTypeRes.json();
                 setVoteType(voteTypeData.vote_type);
+                if (voteTypeData.vote_type === 'text-to-vote') {
+                  // Make sure the code input is empty when voting starts
+                  setTextVote('');
+                }
               } else {
                 setVoteType(null);
               }
@@ -176,12 +180,6 @@ const VotingPage = () => {
         ? 'text-vote-container'
         : 'container'
     }>
-      {/* Banner at the top */}
-      {voteType === 'text-to-vote' && isVotingActive && !hasVoted && (
-        <div className="text-vote-banner">
-          Для введення коду ви можете використовувати кнопки на зображенні телефона
-        </div>
-      )}
       {timeRemaining === null ? (
         <div className="break-container">
           <div className="break-results">
@@ -202,6 +200,9 @@ const VotingPage = () => {
           </>
         ) : voteType === 'text-to-vote' ? (
           <>
+            <div className="text-vote-banner">
+            Для введення коду ви можете використовувати кнопки на зображенні телефона
+            </div>
             <div className="container">
               <div className="oval-container">
                 <div className="nokia3310">

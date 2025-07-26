@@ -190,27 +190,29 @@ const VotingPage = () => {
     { digit: '#', text: '' }
   ];
 
-if (!cssLoaded) {
-  // Show a simple loading spinner while CSS loads
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
-      <div style={{
-        width: 48,
-        height: 48,
-        border: '6px solid #eee',
-        borderTop: '6px solid #0070f3',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite'
-      }} />
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
-  );
-}
+  if (!cssLoaded) {
+    // Show a loading spinner while CSS loads
+    return (
+      <body style={{ margin: 0, padding: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#009AEE', color: 'white', margin: 0, padding: 0 }}>
+          <div style={{
+            width: 48,
+            height: 48,
+            border: '6px solid #009AEE',
+            borderTop: '6px solid white',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </body>      
+    );
+  }
   return (
     <div className={
       timeRemaining === null

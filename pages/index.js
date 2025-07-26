@@ -18,6 +18,7 @@ const VotingPage = () => {
   const [votingID, setVotingID] = useState(null);
   const [voteType, setVoteType] = useState(null);
   const [textVote, setTextVote] = useState('');
+  const [cssLoaded, setCssLoaded] = useState(false);
   const inputRef = useRef(null);
 
   // Poll the voting status every 500ms if voting is not active
@@ -89,11 +90,19 @@ const VotingPage = () => {
   // Dynamically load the correct CSS for each vote type and for break screen
   useEffect(() => {
     let textVoteSheet, singleMotionVoteSheet, breakScreenSheet;
+    let loadedCount = 0;
+    const totalSheets = voteType === 'text-to-vote' ? 2 : voteType === 'single-motion' ? 2 : 1;
+    setCssLoaded(false);
+
     // Always load break-screen.css for break screen
     breakScreenSheet = document.createElement('link');
     breakScreenSheet.rel = 'stylesheet';
     breakScreenSheet.href = '/styles/break-screen.css';
     breakScreenSheet.id = 'break-screen-css';
+    breakScreenSheet.onload = () => {
+      loadedCount++;
+      if (loadedCount === totalSheets) setCssLoaded(true);
+    };
     document.head.appendChild(breakScreenSheet);
 
     if (voteType === 'text-to-vote') {
@@ -102,6 +111,10 @@ const VotingPage = () => {
       textVoteSheet.rel = 'stylesheet';
       textVoteSheet.href = '/styles/text-vote.css';
       textVoteSheet.id = 'text-vote-css';
+      textVoteSheet.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalSheets) setCssLoaded(true);
+      };
       document.head.appendChild(textVoteSheet);
       // Remove single-motion.css if present
       const existingSingleMotion = document.getElementById('single-motion-css');
@@ -112,6 +125,10 @@ const VotingPage = () => {
       singleMotionVoteSheet.rel = 'stylesheet';
       singleMotionVoteSheet.href = '/styles/single-motion.css';
       singleMotionVoteSheet.id = 'single-motion-css';
+      singleMotionVoteSheet.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalSheets) setCssLoaded(true);
+      };
       document.head.appendChild(singleMotionVoteSheet);
       // Remove text-vote.css if present
       const existingTextVote = document.getElementById('text-vote-css');
@@ -122,6 +139,7 @@ const VotingPage = () => {
       if (existingSingleMotion) existingSingleMotion.remove();
       const existingTextVote = document.getElementById('text-vote-css');
       if (existingTextVote) existingTextVote.remove();
+      // Only break-screen.css needs to load
     }
     return () => {
       if (textVoteSheet && textVoteSheet.parentNode) {
@@ -172,6 +190,27 @@ const VotingPage = () => {
     { digit: '#', text: '' }
   ];
 
+if (!cssLoaded) {
+  // Show a simple loading spinner while CSS loads
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <div style={{
+        width: 48,
+        height: 48,
+        border: '6px solid #eee',
+        borderTop: '6px solid #0070f3',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite'
+      }} />
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
   return (
     <div className={
       timeRemaining === null

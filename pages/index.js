@@ -194,7 +194,7 @@ const VotingPage = () => {
     // Show a loading spinner while CSS loads
     return (
       <body style={{ margin: 0, padding: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#009AEE', color: 'white', margin: 0, padding: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#009AEE', color: 'white'}}>
           <div style={{
             width: 48,
             height: 48,
@@ -242,7 +242,7 @@ const VotingPage = () => {
         ) : voteType === 'text-to-vote' ? (
           <>
             <div className="text-vote-banner">
-            Для введення коду ви можете використовувати кнопки на зображенні телефона
+            Щоб ввести код, ви можете скористатися кнопками на зображенні телефону
             </div>
             <div className="container">
               <div className="oval-container">
